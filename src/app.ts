@@ -94,7 +94,7 @@ try {
   app.use('/auth', AuthRouter);
   app.use('/users', UsersRouter);
   app.use('/shortener', ShortenerRouter);
-  app.use('/admin', AdminRouter);
+  app.use('/bot', AdminRouter);
   app.listen(PORT, () => {
     console.log(`Listening to port ${PORT}`);
   });
