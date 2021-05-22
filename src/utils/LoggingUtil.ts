@@ -19,7 +19,7 @@ async function logDomains(domains: Domain[], donatedby: User) {
   await Axios.post(process.env.WEBHOOK_URL, {
     embeds: [
       {
-        description: `${grammar} been added, DNS records have automatically been updated.`,
+        description: `${grammar} been added, they will be available soon.`,
         fields: [
           {
             name: 'Domains',
@@ -59,72 +59,10 @@ async function logCustomDomain(domain: Domain) {
             name: 'Donator',
             value: domain.donatedBy,
           },
-          {
-            name: 'Private',
-            value: domain.userOnly ? 'Yes' : 'No',
-          },
         ],
       },
     ],
   });
 }
 
-/**
- * Log a possible alt to the discord.
- * @param {User[]} relatedAlts The users.
- * @param alt
- * @param register
- */
-async function logPossibleAlts(
-  relatedAlts: User[],
-  alt: User,
-  register: boolean
-) {
-  const altsList = relatedAlts
-    .map(d => d.username + (d.blacklisted.status ? ' (Blacklisted)' : ''))
-    .join(', ');
-  await Axios.post(process.env.CUSTOM_DOMAIN_WEBHOOK, {
-    embeds: [
-      {
-        title: `A new possible account has ${
-          register ? 'registered' : 'logged in'
-        }`,
-        fields: [
-          {
-            name: 'Username:',
-            value: alt.username,
-            inline: true,
-          },
-          {
-            name: 'UID:',
-            value: `${alt.uid}`,
-            inline: true,
-          },
-          {
-            name: 'Uploads:',
-            value: alt.uploads,
-            inline: true,
-          },
-          {
-            name: 'Discord:',
-            value: alt.discord.id ? `<@${alt.discord.id}>` : 'Not linked',
-            inline: true,
-          },
-          {
-            name: 'Relative accounts:',
-            value: `\`\`\`${altsList}\`\`\``,
-          },
-          {
-            name: 'UUID:',
-            value: `\`\`\`${alt._id}\`\`\``,
-          },
-        ],
-        thumbnail: {
-          url: alt.discord.avatar,
-        },
-      },
-    ],
-  });
-}
-
-export {logDomains, logCustomDomain, logPossibleAlts};
+export {logDomains, logCustomDomain};

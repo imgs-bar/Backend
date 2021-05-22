@@ -39,16 +39,17 @@ export class File {
   domain: string;
 
   /**
-   * Whether or not the domain is user-only.
-   */
-  @prop()
-  userOnlyDomain: boolean;
-
-  /**
    * The file's deletion key.
    */
   @prop()
   deletionKey: string;
+
+  /**
+   * The hash of the file
+   */
+
+  @prop()
+  hash: string;
 
   /**
    * The file's embed settings.

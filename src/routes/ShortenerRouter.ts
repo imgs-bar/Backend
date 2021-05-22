@@ -161,7 +161,7 @@ router.get(
       });
 
     const config = {
-      Name: 'higure.wtf shortener',
+      Name: 'imgs.bar shortener',
       DestinationType: 'URLShortener',
       RequestMethod: 'POST',
       RequestURL: `${process.env.BACKEND_URL}/shortener`,
@@ -177,7 +177,7 @@ router.get(
 
     res.set(
       'Content-Disposition',
-      'attachment; filename=higure.wtf-shortener.sxcu'
+      'attachment; filename=imgs.bar-shortener.sxcu'
     );
     res.send(Buffer.from(JSON.stringify(config, null, 2), 'utf8'));
   }

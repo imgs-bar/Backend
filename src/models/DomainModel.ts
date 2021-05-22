@@ -27,7 +27,7 @@ export class Domain {
   donatedBy: string;
 
   /**
-   * Whether or not the domain is only usable by the donator.
+   * Whether or not the domain is only visable by the donator.
    */
   @prop()
   userOnly: boolean;

@@ -4,20 +4,21 @@ import AuthMiddleware from '../../middlewares/AuthMiddleware';
 import UserModel from '../../models/UserModel';
 import MeRouter from './MeRouter';
 import InviteModel from '../../models/InviteModel';
-import AdminAuthMiddleware from '../../middlewares/AdminAuthMiddleware';
 
 const router = Router();
 
 router.use('/@me', MeRouter);
 
-router.get('/', AdminAuthMiddleware, async (_req: Request, res: Response) => {
+router.get('/', AuthMiddleware, async (_req: Request, res: Response) => {
   try {
-    const total = await UserModel.countDocuments();
-    const blacklisted = await UserModel.countDocuments({
+    const total = await UserModel.estimatedDocumentCount();
+    const blacklisted = await UserModel.estimatedDocumentCount({
       'blacklisted.status': true,
     });
-    const unusedInvites = await InviteModel.countDocuments({redeemed: false});
-    const premium = await UserModel.countDocuments({premium: true});
+    const unusedInvites = await InviteModel.estimatedDocumentCount({
+      redeemed: false,
+    });
+    const premium = await UserModel.estimatedDocumentCount({premium: true});
 
     res.status(200).json({
       success: true,
@@ -37,7 +38,9 @@ router.get('/', AdminAuthMiddleware, async (_req: Request, res: Response) => {
 router.get('/:id', AdminMiddleware, async (req: Request, res: Response) => {
   const {id} = req.params;
 
-  const user = await UserModel.findById(id).select('-__v -password');
+  const user = await UserModel.findById(id).select(
+    '-__v -password -invite -lastDomainAddition -lastFileArchive -emailVerified  -emailVerificationKey -strikes -bypassAltCheck -invite -lastDomainAddition -lastFileArchive -emailVerified  -emailVerificationKey -strikes -bypassAltCheck'
+  );
 
   if (!user)
     return res.status(404).json({

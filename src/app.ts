@@ -2,7 +2,6 @@ import 'dotenv/config';
 import {
   AdminRouter,
   AuthRouter,
-  BaseRouter,
   DomainsRouter,
   FilesRouter,
   InvitesRouter,
@@ -72,10 +71,11 @@ try {
     cors({
       credentials: true,
       origin: [
-        'https://www.higure.wtf',
-        'https://higure.wtf',
+        'https://www.imgs.bar',
+        'https://imgs.bar',
         'http://localhost:3000',
         'http://localhost:3000',
+        'https://frontend-rhp9.pages.dev',
       ],
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     })
@@ -88,7 +88,6 @@ try {
   app.use(json());
   app.use(cookieParser());
   app.use(SessionMiddleware);
-  app.use('/', BaseRouter);
   app.use('/files', FilesRouter);
   app.use('/invites', InvitesRouter);
   app.use('/domains', DomainsRouter);
@@ -96,31 +95,26 @@ try {
   app.use('/users', UsersRouter);
   app.use('/shortener', ShortenerRouter);
   app.use('/admin', AdminRouter);
-  app.use((_req, res) => {
-    res.redirect(process.env.FRONTEND_URL);
-  });
   app.listen(PORT, () => {
     console.log(`Listening to port ${PORT}`);
   });
 
-  connect(
-    process.env.MONGO_URI,
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useFindAndModify: false,
-    },
-    () => {
-      console.log('Connected to MongoDB cluster');
-    }
-  );
+  connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+  }).then(() => {
+    console.log('Connected to MongoDB cluster');
+  });
 
   (async () => {
     const findCounter = await CounterModel.findById('counter');
     if (!findCounter)
-      throw new Error(
-        'Create a counter document with the value 1 as the count'
-      );
+      await CounterModel.create({
+        _id: 'counter',
+        count: 0,
+        storageUsed: 0,
+      });
     for (const user of await UserModel.find({
       'settings.autoWipe.enabled': true,
     })) {

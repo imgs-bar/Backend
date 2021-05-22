@@ -50,7 +50,6 @@ async function updateStorage() {
  * @param {string} dir The directory to delete.
  */
 async function wipeFiles(user: User, dir = `${user._id}/`) {
-  const domains = await DomainModel.find({userOnly: true, donatedBy: user._id});
   let count = 0;
 
   // eslint-disable-next-line no-constant-condition
@@ -59,31 +58,6 @@ async function wipeFiles(user: User, dir = `${user._id}/`) {
       Bucket: process.env.S3_BUCKET,
       Prefix: dir,
     };
-
-    if (domains.length !== 0)
-      for (const domain of domains) {
-        if (domain.userOnly) {
-          params.Prefix = `${domain.name}/`;
-
-          const domainObjects = await s3.listObjectsV2(params).promise();
-
-          if (domainObjects.Contents.length !== 0) {
-            const deleteParams = {
-              Bucket: process.env.S3_BUCKET,
-              Delete: {
-                Objects: [],
-              },
-            };
-
-            for (const {Key} of domainObjects.Contents) {
-              deleteParams.Delete.Objects.push({Key});
-            }
-
-            const deleted = await s3.deleteObjects(deleteParams).promise();
-            count += (deleted.Deleted as AWS.S3.DeletedObjects).length;
-          }
-        }
-      }
 
     params.Prefix = `${user._id}/`;
 

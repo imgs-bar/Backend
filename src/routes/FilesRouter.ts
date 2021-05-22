@@ -17,11 +17,8 @@ import Archiver from 'archiver';
 import {extname} from 'path';
 import CounterModel from '../models/CounterModel';
 import AdminAuthMiddleware from '../middlewares/AdminAuthMiddleware';
-//import crypto from 'crypto'
 
 const rateLimit = require('express-rate-limit');
-
-const allowedMimetypes = ['video', 'image'];
 
 const router = Router();
 const fileLimiter = rateLimit({
@@ -70,34 +67,15 @@ router.post(
         error: 'provide a file',
       });
 
-    if (
-      !allowedMimetypes.some((mimeType: string) =>
-        file.mimetype.split('/')[0].toLowerCase().includes(mimeType)
-      )
-    )
-      return res.sendStatus(403).json({
-        success: false,
-        error: `The allowed mimetypes are ${allowedMimetypes
-          .map((fileType: string) => `.${fileType}`)
-          .join(', ')
-          .replace(/,\s([^,]+)$/, ', and $1')}`,
-      });
-
-    if ((file.size > 15728640 && !user.premium) || file.size > 104857600)
+    if ((file.size > 20971520 && !user.premium) || file.size > 104857600)
       return res.sendStatus(413).json({
         success: false,
         error: `your file is too large, your upload limit is: ${
-          user.premium ? '100' : '15'
+          user.premium ? '100' : '20'
         } MB`,
       });
-    //     const hash = crypto.createHash('sha256');
-    //     file.stream.on('data', function(data) {
-    //         hash.update(data)
-    //     })
-    //     file.stream.on('end', function () {
-    //         hash.digest('hex')
-    //     })
-    //    console.log(hash)
+
+    console.log(file.hash);
     const {
       domain,
       randomDomain,
@@ -127,6 +105,18 @@ router.post(
             ]
           : baseUrl;
 
+    const fileWithSameHash = await FileModel.findOne({
+      hash: file.hash,
+      'uploader.uuid': user._id,
+    });
+    if (fileWithSameHash) {
+      res.status(200).json({
+        success: true,
+        imageUrl: `https://${baseUrl}/${fileWithSameHash.filename}`,
+        deletionUrl: `${process.env.BACKEND_URL}/files/delete?key=${fileWithSameHash.deletionKey}`,
+      });
+    }
+
     let imageUrl = `https://${baseUrl}/${file.filename}`;
 
     const deletionKey = generateString(40);
@@ -139,8 +129,8 @@ router.post(
       timestamp,
       mimetype: file.mimetype,
       domain: baseUrl,
-      userOnlyDomain: file.userOnlyDomain ? file.userOnlyDomain : false,
       size: formatFilesize(file.size),
+      hash: file.hash,
       deletionKey,
       embed,
       showLink,
@@ -339,10 +329,10 @@ router.get(
       });
 
     const config = {
-      Name: 'higure.wtf file uploader',
+      Name: 'imgs.bar file uploader',
       DestinationType: 'ImageUploader, FileUploader',
       RequestType: 'POST',
-      RequestURL: 'https://api.higure.wtf/files',
+      RequestURL: 'https://api.imgs.bar/files',
       FileFormName: 'file',
       Body: 'MultipartFormData',
       Headers: {
@@ -353,7 +343,7 @@ router.get(
       ErrorMessage: '$json:error$',
     };
 
-    res.set('Content-Disposition', 'attachment; filename=higure.wtf.sxcu');
+    res.set('Content-Disposition', 'attachment; filename=imgs.bar.sxcu');
     res.send(Buffer.from(JSON.stringify(config, null, 2), 'utf8'));
   }
 );

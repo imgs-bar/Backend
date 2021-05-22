@@ -14,7 +14,7 @@ declare global {
   namespace Express.Multer {
     export interface File {
       key: string;
-      userOnlyDomain: boolean;
+      hash: string;
     }
   }
 }

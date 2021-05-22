@@ -11,7 +11,7 @@ const check = new proxy_check({api_key: '71x722-t44jz9-7043n4-13nb77'});
 //this is hella ugly IK
 async function isVPN(ip: string) {
   const ipintel = await Axios.get(
-    `http://check.getipintel.net/check.php?ip=${ip}&contact=hello@higure.wtf`,
+    `http://check.getipintel.net/check.php?ip=${ip}&contact=hello@imgs.bar`,
     {transformResponse: []}
   );
   if (Number(ipintel.data) > 0.99) {

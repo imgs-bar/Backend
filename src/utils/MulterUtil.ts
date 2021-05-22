@@ -3,8 +3,7 @@ import {formatExtension} from './FormatUtil';
 import {generateString} from './GenerateUtil';
 import {s3} from './S3Util';
 import multer, {Multer} from 'multer';
-import MulterS3 from 'multer-s3';
-import DomainModel from '../models/DomainModel';
+import MulterS3 from './MulterS3Custom.js';
 
 /**
  * The Multer configuration.
@@ -17,21 +16,14 @@ const upload: Multer = multer({
     bucket: process.env.S3_BUCKET,
     key: async (req: Request, file: Express.Multer.File, cb) => {
       if (!req.user) return;
-
       const key = req.user._id;
-      const {longUrl, domain} = req.user.settings;
-      const document = await DomainModel.findOne({name: domain.name});
+      const {longUrl} = req.user.settings;
       const filename =
         (longUrl ? generateString(17) : generateString(7)) +
         formatExtension(file);
 
-      if (document.userOnly) {
-        file.userOnlyDomain = true;
-      }
-
       file.filename = filename;
       file.key = `${key}/${filename}`;
-
       cb(null, `${key}/${filename}`);
     },
   }),

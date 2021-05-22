@@ -24,12 +24,7 @@ router.get(
     try {
       const user = await UserModel.findOne({'discord.id': id});
 
-      if (
-        !user ||
-        user.blacklisted.status ||
-        !user.emailVerified ||
-        user.disabled
-      ) {
+      if (!user || user.blacklisted.status || user.disabled) {
         return res.status(401).redirect(process.env.FRONTEND_URL);
       }
       const passwordReset = await PasswordResetModel.findOne({user: user._id});
@@ -126,19 +121,13 @@ router.get(
       );
 
       const user = await UserModel.findOne({_id: token._id}).select(
-        '-__v -password'
+        '-__v -password -invite -lastDomainAddition -lastFileArchive -emailVerified  -emailVerificationKey -strikes -bypassAltCheck'
       );
 
       if (!user)
         return res.status(401).json({
           success: false,
           error: 'invalid session',
-        });
-
-      if (!user.emailVerified)
-        return res.status(401).json({
-          success: false,
-          error: 'your email is not verified',
         });
 
       const {id, avatar, discriminator} = req.discord.user;

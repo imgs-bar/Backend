@@ -39,8 +39,7 @@ router.post('/', AuthMiddleware, async (req: Request, res: Response) => {
 
   res.status(200).json({
     success: true,
-    link: `https://higure.wtf/?code=${invite}`,
-    code: invite,
+    _id: invite,
     dateCreated,
   });
 });

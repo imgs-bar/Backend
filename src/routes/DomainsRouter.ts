@@ -16,7 +16,6 @@ const router = Router();
 router.get('/', AdminAuthMiddleware, async (req: Request, res: Response) => {
   const {user} = req;
   try {
-    const count = await DomainModel.countDocuments();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let domains: any = await DomainModel.find({userOnly: false})
       .select('-__v -_id -donatedBy')
@@ -41,7 +40,7 @@ router.get('/', AdminAuthMiddleware, async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      count,
+      count: domains.length,
       domains,
     });
   } catch (err) {
@@ -117,9 +116,7 @@ router.post(
           dateAdded: new Date(),
         });
       }
-      if (!req.body[0].userOnly) {
-        await logDomains(req.body, donator);
-      }
+      await logDomains(req.body, donator);
 
       res.status(200).json({
         success: true,
@@ -245,7 +242,7 @@ router.delete(
       await UserModel.updateMany(
         {'settings.domain.name': domain.name},
         {
-          'settings.domain.name': 'i.higure.wtf',
+          'settings.domain.name': 'i.imgs.bar',
           'settings.domain.subdomain': null,
         }
       );
@@ -254,55 +251,6 @@ router.delete(
         success: true,
         message: 'deleted domain successfully',
       });
-    } catch (err) {
-      res.status(500).json({
-        success: false,
-        error: err.message,
-      });
-    }
-  }
-);
-
-router.get(
-  '/list',
-  AdminAuthMiddleware,
-  async (_req: Request, res: Response) => {
-    try {
-      const domains = await DomainModel.find({}).select(
-        '-__v -_id -wildcard -donated -donatedBy -dateAdded'
-      );
-
-      res.status(200).json(domains.map(d => d.name).join(', '));
-    } catch (err) {
-      res.status(500).json({
-        success: false,
-        error: err.message,
-      });
-    }
-  }
-);
-
-router.get(
-  '/rank',
-  AdminAuthMiddleware,
-  async (_req: Request, res: Response) => {
-    try {
-      const domains = await DomainModel.find({});
-      const ranks = [];
-
-      for (const domain of domains) {
-        const users = await UserModel.countDocuments({
-          'settings.domain.name': domain.name,
-        });
-        ranks.push({
-          domain: domain.name,
-          users,
-        });
-      }
-
-      const sorted = ranks.sort((a, b) => a.users - b.users).reverse();
-
-      res.status(200).json(sorted);
     } catch (err) {
       res.status(500).json({
         success: false,

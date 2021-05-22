@@ -60,7 +60,6 @@ router.post(
 
       res.status(200).json({
         success: true,
-        link: `https://higure.wtf/?code=${invite}`,
         code: invite,
         dateCreated,
       });
@@ -314,44 +313,6 @@ router.post(
       res.status(200).json({
         success: true,
         message: 'set user as premium correctly',
-      });
-    } catch (err) {
-      res.status(500).json({
-        success: false,
-        error: err.message,
-      });
-    }
-  }
-);
-router.post(
-  '/verifyemail',
-  ValidationMiddleware(PremiumSchema),
-  async (req: Request, res: Response) => {
-    const {id} = req.body;
-
-    try {
-      // this next line is lol, just lol.
-      const user = await UserModel.findOne({
-        $or: [
-          {_id: id},
-          {username: id},
-          {email: id},
-          {invite: id},
-          {key: id},
-          {'discord.id': id.replace('<@!', '').replace('>', '')},
-        ],
-      });
-      if (!user)
-        return res.status(404).json({
-          success: false,
-          error: 'invalid user',
-        });
-      await UserModel.findByIdAndUpdate(user._id, {
-        emailVerified: true,
-      });
-      res.status(200).json({
-        success: true,
-        message: 'verified users mail',
       });
     } catch (err) {
       res.status(500).json({

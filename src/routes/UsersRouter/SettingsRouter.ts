@@ -33,12 +33,6 @@ router.put(
           error: 'invalid domain name',
         });
 
-      if (validDomain.userOnly && validDomain.donatedBy !== user._id)
-        return res.status(400).json({
-          success: false,
-          error: 'you do not have permission to use this domain',
-        });
-
       if (!validDomain.wildcard) subdomain = null;
 
       await UserModel.findByIdAndUpdate(user._id, {

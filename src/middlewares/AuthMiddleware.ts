@@ -10,13 +10,9 @@ export default async (req: Request, res: Response, next: NextFunction) => {
       error: 'unauthorized',
     });
 
-  user = await UserModel.findById(user._id).select('-__v -password');
-
-  if (!user.emailVerified)
-    return res.status(401).json({
-      success: false,
-      error: 'please verify your email',
-    });
+  user = await UserModel.findById(user._id).select(
+    '-__v -password -invite -lastDomainAddition -lastFileArchive -emailVerificationKey -strikes -bypassAltCheck'
+  );
 
   if (user.blacklisted.status)
     return res.status(401).json({

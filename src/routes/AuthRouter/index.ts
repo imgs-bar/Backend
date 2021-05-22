@@ -15,7 +15,7 @@ import PasswordResetsRouter from './PasswordResetsRouter';
 import PasswordResetModel from '../../models/PasswordResetModel';
 import CounterModel from '../../models/CounterModel';
 import RefreshTokenModel from '../../models/RefreshTokenModel';
-import {logPossibleAlts} from '../../utils/LoggingUtil';
+import {checkCaptcha} from '../../utils/CaptchaUtil';
 
 const router = Router();
 
@@ -65,7 +65,7 @@ router.post('/token', async (req: Request, res: Response) => {
     );
 
     const user = await UserModel.findOne({_id: token._id}).select(
-      '-__v -password -ips'
+      '-__v -password -invite -lastDomainAddition -lastFileArchive -emailVerified  -emailVerificationKey -strikes -bypassAltCheck -ips'
     );
 
     if (!user)
@@ -203,8 +203,6 @@ router.post(
         lastUsernameChange: null,
         lastFileArchive: null,
         email,
-        emailVerified: true,
-        emailVerificationKey: generateString(30),
         discord: {
           id: null,
           avatar: null,
@@ -225,7 +223,7 @@ router.post(
         bypassAltCheck: false,
         settings: {
           domain: {
-            name: 'i.higure.wtf',
+            name: 'i.imgs.bar',
             subdomain: null,
           },
           randomDomain: {
@@ -255,7 +253,6 @@ router.post(
       });
 
       await user.save();
-
       res.status(200).json({
         success: true,
         message: 'registered successfully, please login',
@@ -276,12 +273,20 @@ router.post(
     const {
       username,
       password,
+      captcha,
     }: {
       username: string;
       password: string;
+      captcha: string;
     } = req.body;
 
     const user = await UserModel.findOne({username});
+    if (!(await checkCaptcha(captcha))) {
+      return res.status(401).json({
+        success: false,
+        error: 'invalid captcha',
+      });
+    }
 
     if (
       !user ||
@@ -292,12 +297,6 @@ router.post(
       return res.status(401).json({
         success: false,
         error: 'invalid username or password',
-      });
-
-    if (!user.emailVerified)
-      return res.status(401).json({
-        success: false,
-        error: 'your email is not verified',
       });
 
     if (user.blacklisted.status)
@@ -351,7 +350,9 @@ router.post(
       res.status(200).json({
         success: true,
         accessToken,
-        user: await UserModel.findById(user._id).select('-__v -password'),
+        user: await UserModel.findById(user._id).select(
+          '-__v -password -invite -lastDomainAddition -lastFileArchive -emailVerified  -emailVerificationKey -strikes -bypassAltCheck'
+        ),
       });
     } catch (err) {
       res.status(500).json({
@@ -394,42 +395,5 @@ router.get('/logout', async (req: Request, res: Response) => {
     });
   }
 });
-
-router.get(
-  '/verify',
-  ValidationMiddleware(VerifyEmailSchema, 'query'),
-  async (req: Request, res: Response) => {
-    const key = req.query.key as string;
-    const user = await UserModel.findOne({emailVerificationKey: key});
-
-    if (!user)
-      return res.status(404).json({
-        success: false,
-        error: 'invalid verification key',
-      });
-
-    if (user.emailVerified)
-      return res.status(400).json({
-        success: false,
-        error: 'your email is already verified',
-      });
-
-    try {
-      await UserModel.findByIdAndUpdate(user._id, {
-        emailVerified: true,
-      });
-
-      res.status(200).json({
-        success: true,
-        message: 'verified email successfully',
-      });
-    } catch (err) {
-      res.status(500).json({
-        success: false,
-        error: err.message,
-      });
-    }
-  }
-);
 
 export default router;
