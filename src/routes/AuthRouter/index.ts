@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import {hash, verify} from 'argon2';
+import {argon2id, hash, verify} from 'argon2';
 import {Request, Response, Router} from 'express';
 import {sign, verify as verifyjwt} from 'jsonwebtoken';
 import {v4 as uuid} from 'uuid';
@@ -9,9 +9,7 @@ import InviteModel from '../../models/InviteModel';
 import UserModel from '../../models/UserModel';
 import LoginSchema from '../../schemas/LoginSchema';
 import RegisterSchema from '../../schemas/RegisterSchema';
-import VerifyEmailSchema from '../../schemas/VerifyEmailSchema';
 import DiscordRouter from './DiscordRouter';
-import PasswordResetsRouter from './PasswordResetsRouter';
 import PasswordResetModel from '../../models/PasswordResetModel';
 import CounterModel from '../../models/CounterModel';
 import RefreshTokenModel from '../../models/RefreshTokenModel';
@@ -30,7 +28,6 @@ async function getNextUid() {
 }
 
 router.use('/discord', DiscordRouter);
-router.use('/password_resets', PasswordResetsRouter);
 
 router.post('/token', async (req: Request, res: Response) => {
   const cookie = req.cookies['x-refresh-token'];
@@ -77,18 +74,6 @@ router.post('/token', async (req: Request, res: Response) => {
     await UserModel.findByIdAndUpdate(user._id, {
       lastLogin: new Date(),
     });
-
-    if (!user.settings.fakeUrl) {
-      await UserModel.findByIdAndUpdate(user._id, {
-        settings: {
-          ...user.settings,
-          fakeUrl: {
-            enabled: false,
-            url: 'https://google.com',
-          },
-        },
-      });
-    }
 
     const accessToken = sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: '15m',
@@ -187,7 +172,9 @@ router.post(
       });
     }
 
-    password = await hash(password);
+    password = await hash(password, {
+      type: argon2id,
+    });
 
     try {
       const user = await UserModel.create({
@@ -291,7 +278,9 @@ router.post(
     if (
       !user ||
       !(user.password.startsWith('$')
-        ? await verify(user.password, password)
+        ? await verify(user.password, password, {
+            type: argon2id,
+          })
         : false)
     )
       return res.status(401).json({

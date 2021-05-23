@@ -3,37 +3,10 @@ import AdminMiddleware from '../../middlewares/AdminMiddleware';
 import AuthMiddleware from '../../middlewares/AuthMiddleware';
 import UserModel from '../../models/UserModel';
 import MeRouter from './MeRouter';
-import InviteModel from '../../models/InviteModel';
 
 const router = Router();
 
 router.use('/@me', MeRouter);
-
-router.get('/', AuthMiddleware, async (_req: Request, res: Response) => {
-  try {
-    const total = await UserModel.estimatedDocumentCount();
-    const blacklisted = await UserModel.estimatedDocumentCount({
-      'blacklisted.status': true,
-    });
-    const unusedInvites = await InviteModel.estimatedDocumentCount({
-      redeemed: false,
-    });
-    const premium = await UserModel.estimatedDocumentCount({premium: true});
-
-    res.status(200).json({
-      success: true,
-      total,
-      blacklisted,
-      unusedInvites,
-      premium,
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: err.message,
-    });
-  }
-});
 
 router.get('/:id', AdminMiddleware, async (req: Request, res: Response) => {
   const {id} = req.params;

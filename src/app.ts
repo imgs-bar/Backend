@@ -6,6 +6,7 @@ import {
   FilesRouter,
   InvitesRouter,
   ShortenerRouter,
+  StatsRouter,
   UsersRouter,
 } from './routes';
 import {connect} from 'mongoose';
@@ -50,7 +51,8 @@ try {
     'DISCORD_LINK_URL',
     'DISCORD_LOGIN_REDIRECT_URI',
     'DISCORD_LINK_REDIRECT_URI',
-    'DISCORD_ROLES',
+    'USER_ROLE',
+    'PREMIUM_ROLE',
     'DISCORD_SERVER_ID',
     'DISCORD_BOT_TOKEN',
   ];
@@ -95,6 +97,22 @@ try {
   app.use('/users', UsersRouter);
   app.use('/shortener', ShortenerRouter);
   app.use('/bot', AdminRouter);
+  app.use('/stats', StatsRouter);
+  app.use(
+    (
+      err: Error,
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      return res.status(500).json({
+        success: false,
+        message: 'internal server error',
+        error: err.stack,
+      });
+    }
+  );
+
   app.listen(PORT, () => {
     console.log(`Listening to port ${PORT}`);
   });
@@ -104,7 +122,7 @@ try {
     useUnifiedTopology: true,
     useFindAndModify: false,
   }).then(() => {
-    console.log('Connected to MongoDB cluster');
+    console.log('Connected to MongoDB DB');
   });
 
   (async () => {

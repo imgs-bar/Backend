@@ -33,6 +33,12 @@ export class File {
   size: string;
 
   /**
+   * The file size.
+   */
+  @prop()
+  rawSize: number;
+
+  /**
    * The domain the user used.
    */
   @prop()

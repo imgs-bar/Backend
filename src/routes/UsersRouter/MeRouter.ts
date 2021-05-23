@@ -9,9 +9,10 @@ import {generateString} from '../../utils/GenerateUtil';
 import InviteModel from '../../models/InviteModel';
 import RefreshTokenModel from '../../models/RefreshTokenModel';
 import ChangeUsernameSchema from '../../schemas/ChangeUsernameSchema';
-import {hash, verify} from 'argon2';
+import {argon2id, hash, verify} from 'argon2';
 import ChangePasswordSchema from '../../schemas/ChangePasswordSchema';
 import {getMOTD} from '../../app';
+import FileModel from '../../models/FileModel';
 
 const router = Router();
 
@@ -27,23 +28,18 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/images', async (req: Request, res: Response) => {
   const {user} = req;
   try {
-    const params = {
-      Bucket: process.env.S3_BUCKET,
-      Prefix: `${user._id}/`,
-    };
-    const objects = await s3.listObjectsV2(params).promise();
-    objects.Contents.sort(
-      (a, b) => b.LastModified.getTime() - a.LastModified.getTime()
-    );
     const images = [];
-    for (const object of objects.Contents) {
+    const files = await FileModel.find({
+      'uploader.uuid': user._id,
+    });
+
+    for (const file of files) {
       images.push({
-        link: `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${
-          user._id
-        }/${object.Key.split('/')[1]}`,
-        dateUploaded: object.LastModified,
-        filename: object.Key.split('/')[1],
-        size: formatFilesize(object.Size),
+        link: `https://${file.domain}/${file.filename}`,
+        dateUploaded: file.timestamp,
+        filename: file.filename,
+        size: file.size,
+        cdnUrl: `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${user._id}/${file.filename}`,
       });
     }
     res.status(200).json({
@@ -155,7 +151,9 @@ router.put(
 
     try {
       user = await UserModel.findById(user._id);
-      const correctPassword = await verify(user.password, password);
+      const correctPassword = await verify(user.password, password, {
+        type: argon2id,
+      });
 
       if (!correctPassword)
         return res.status(401).json({
@@ -225,7 +223,9 @@ router.put(
 
     try {
       user = await UserModel.findById(user._id);
-      const correctPassword = await verify(user.password, password);
+      const correctPassword = await verify(user.password, password, {
+        type: argon2id,
+      });
 
       if (!correctPassword)
         return res.status(401).json({
@@ -239,7 +239,9 @@ router.put(
           error: 'choose a new password',
         });
 
-      const hashed = await hash(newPassword);
+      const hashed = await hash(newPassword, {
+        type: argon2id,
+      });
 
       await UserModel.findByIdAndUpdate(user._id, {
         password: hashed,

@@ -14,7 +14,7 @@ import InvisibleUrlModel from '../models/InvisibleUrlModel';
 import RefreshTokenModel from '../models/RefreshTokenModel';
 import PremiumSchema from '../schemas/PremiumSchema';
 import SetUIDSchema from '../schemas/SetUIDSchema';
-import {addPremium} from '../utils/OAuthUtil';
+import {addPremium, addRoles} from '../utils/OAuthUtil';
 import {setMOTD} from '../app';
 
 const router = Router();
@@ -322,6 +322,7 @@ router.post(
     }
   }
 );
+
 router.post(
   '/setuid',
   ValidationMiddleware(SetUIDSchema),
@@ -567,5 +568,33 @@ router.post(
     }
   }
 );
+
+router.post('/roles', AdminMiddleware, async (req: Request, res: Response) => {
+  const {id} = req.params;
+
+  try {
+    const user = await UserModel.findOne({
+      'discord.id': id.replace('<@!', '').replace('>', ''),
+    });
+
+    if (!user)
+      return res.status(204).json({
+        success: true,
+        error: 'not a user.',
+      });
+
+    await addRoles(user);
+
+    return res.status(200).json({
+      success: true,
+      message: 'add roles successfully',
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
+});
 
 export default router;

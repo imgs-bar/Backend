@@ -3,6 +3,7 @@ import DomainModel from '../models/DomainModel';
 import {User} from '../models/UserModel';
 import CounterModel from '../models/CounterModel';
 import Axios, {Method} from 'axios';
+import FileModel from '../models/FileModel';
 
 /**
  * The aws-S3 session.
@@ -22,17 +23,12 @@ const s3 = new S3({
 //     endpoint: process.env.S3_ENDPOINT,
 // });
 
-// the function below is terrible, disgusting, and long, I know, I couldn't really think of any either way to do it and I wanted to release quickly, sorry!
 async function updateStorage() {
   try {
-    const params = {
-      Bucket: process.env.S3_BUCKET,
-    };
-    let storageUsed = 0;
-    const objects = await s3.listObjectsV2(params).promise();
-    for (const object of objects.Contents) {
-      storageUsed += object.Size;
-    }
+    const storageUsedfiles = await FileModel.aggregate([
+      {$group: {_id: null, storageUsed: {$sum: '$rawSize'}}},
+    ]);
+    const storageUsed = storageUsedfiles[0].storageUsed;
     await CounterModel.findByIdAndUpdate('counter', {
       storageUsed: storageUsed,
     });

@@ -95,7 +95,8 @@ export class OAuth {
    * @param {User} user The user to add.
    */
   addGuildMember = async (user: User): Promise<void> => {
-    const whitelistedRole = process.env.DISCORD_ROLES;
+    const userRole = process.env.USER_ROLE;
+    const premiumRole = process.env.PREMIUM_ROLE;
 
     let data: any = JSON.stringify({
       access_token: this.authorization.access_token,
@@ -118,7 +119,7 @@ export class OAuth {
       });
 
       await this.request(
-        `/guilds/${process.env.DISCORD_SERVER_ID}/members/${this.user.id}/roles/${whitelistedRole}`,
+        `/guilds/${process.env.DISCORD_SERVER_ID}/members/${this.user.id}/roles/${userRole}`,
         'PUT',
         data,
         {
@@ -141,21 +142,22 @@ export class OAuth {
           }
         );
 
-        data = JSON.stringify({
+        const nickData: any = JSON.stringify({
           nick: user.username,
         });
+
         await this.request(
           `/guilds/${process.env.DISCORD_SERVER_ID}/members/${this.user.id}`,
           'PATCH',
-          data,
+          nickData,
           {
             Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
           }
         );
 
-        if (data.roles.includes(whitelistedRole))
+        if (data.roles.includes(userRole))
           await this.request(
-            `/guilds/${process.env.DISCORD_SERVER_ID}/members/${user.discord.id}/roles/${whitelistedRole}`,
+            `/guilds/${process.env.DISCORD_SERVER_ID}/members/${user.discord.id}/roles/${userRole}`,
             'DELETE',
             null,
             {
@@ -163,9 +165,10 @@ export class OAuth {
               'Content-Type': 'application/json',
             }
           );
+
         if (user.premium) {
           await this.request(
-            `/guilds/${process.env.DISCORD_SERVER_ID}/members/${user.discord.id}/roles/821327907250241536`,
+            `/guilds/${process.env.DISCORD_SERVER_ID}/members/${this.user.id}/roles/${premiumRole}`,
             'PUT',
             null,
             {
@@ -179,9 +182,10 @@ export class OAuth {
     }
   };
 }
+
 async function addPremium(user: User) {
   await this.request(
-    `/guilds/${process.env.DISCORD_SERVER_ID}/members/${user.discord.id}/roles/821327907250241536`,
+    `/guilds/${process.env.DISCORD_SERVER_ID}/members/${user.discord.id}/roles/${process.env.PREMIUM_ROLE}`,
     'PUT',
     null,
     {
@@ -189,4 +193,48 @@ async function addPremium(user: User) {
     }
   );
 }
-export {addPremium};
+
+async function addRoles(user: User) {
+  const userRole = process.env.USER_ROLE;
+  const premiumRole = process.env.PREMIUM_ROLE;
+
+  let data: any = JSON.stringify({
+    access_token: this.authorization.access_token,
+    nick: user.username,
+  });
+  try {
+    await this.request(
+      `/guilds/${process.env.DISCORD_SERVER_ID}/members/${this.user.id}/roles/${userRole}`,
+      'PUT',
+      data,
+      {
+        Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+      }
+    );
+    data = JSON.stringify({
+      nick: user.username,
+    });
+    await this.request(
+      `/guilds/${process.env.DISCORD_SERVER_ID}/members/${this.user.id}`,
+      'PATCH',
+      data,
+      {
+        Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+      }
+    );
+
+    if (user.premium) {
+      await this.request(
+        `/guilds/${process.env.DISCORD_SERVER_ID}/members/${user.discord.id}/roles/${premiumRole}`,
+        'PUT',
+        null,
+        {
+          Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+        }
+      );
+    }
+  } catch (e) {
+    console.log(e.stack);
+  }
+}
+export {addPremium, addRoles};

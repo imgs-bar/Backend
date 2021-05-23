@@ -27,25 +27,6 @@ const fileLimiter = rateLimit({
   headers: false,
 });
 
-router.get('/', AdminAuthMiddleware, async (_req: Request, res: Response) => {
-  try {
-    const total = await FileModel.countDocuments();
-    const invisibleUrls = await InvisibleUrlModel.countDocuments();
-    const {storageUsed} = await CounterModel.findById('counter');
-    res.status(200).json({
-      success: true,
-      total,
-      invisibleUrls,
-      storageUsed: formatFilesize(storageUsed),
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: err.message,
-    });
-  }
-});
-
 router.post(
   '/',
   fileLimiter,
@@ -75,7 +56,6 @@ router.post(
         } MB`,
       });
 
-    console.log(file.hash);
     const {
       domain,
       randomDomain,
@@ -130,6 +110,7 @@ router.post(
       mimetype: file.mimetype,
       domain: baseUrl,
       size: formatFilesize(file.size),
+      rawSize: file.size,
       hash: file.hash,
       deletionKey,
       embed,
