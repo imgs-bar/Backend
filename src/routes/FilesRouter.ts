@@ -48,11 +48,11 @@ router.post(
         error: 'provide a file',
       });
 
-    if ((file.size > 20971520 && !user.premium) || file.size > 104857600)
+    if ((file.size > 52428800 && !user.premium) || file.size > 104857600)
       return res.sendStatus(413).json({
         success: false,
         error: `your file is too large, your upload limit is: ${
-          user.premium ? '100' : '20'
+          user.premium ? '100' : '50'
         } MB`,
       });
 
