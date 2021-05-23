@@ -60,6 +60,7 @@ router.post(
 
       res.status(200).json({
         success: true,
+        link: `https://imgs.bar/?code=${invite}`,
         code: invite,
         dateCreated,
       });
