@@ -14,7 +14,7 @@ router.get('/', AdminAuthMiddleware, async (req: Request, res: Response) => {
     'blacklisted.status': true,
   });
   const domains = await DomainModel.estimatedDocumentCount();
-  const premium = UserModel.count({
+  const premium = await UserModel.count({
     premium: true,
   });
   const totalFiles = await FileModel.estimatedDocumentCount();
