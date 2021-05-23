@@ -22,12 +22,13 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "allowJs": true
   },
   "include": [
     "src/**/*", "./typings"
   ],
   "exclude": [
     "node_modules"
-  ],
+  ]
 }
