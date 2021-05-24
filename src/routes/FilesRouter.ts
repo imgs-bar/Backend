@@ -63,6 +63,7 @@ router.post(
       showLink,
       invisibleUrl,
       fakeUrl,
+      longUrl,
     } = user.settings;
 
     let baseUrl = req.headers.domain
@@ -132,7 +133,9 @@ router.post(
         ? req.headers.invisibleurl === 'true'
         : invisibleUrl
     ) {
-      const invisibleUrlId = generateInvisibleId();
+      const invisibleUrlId = longUrl
+        ? generateInvisibleId(50)
+        : generateInvisibleId(25);
 
       await InvisibleUrlModel.create({
         _id: invisibleUrlId,

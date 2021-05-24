@@ -22,11 +22,11 @@ function generateInvite(): string {
  * Generate a short url.
  * @return {string} The short url.
  */
-function generateInvisibleId(): string {
+function generateInvisibleId(length: number): string {
   let url = '';
   const invisibleCharacters = ['\u200B', '\u2060', '\u200C', '\u200D'].join('');
 
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < length; i++) {
     url += invisibleCharacters.charAt(
       Math.floor(Math.random() * invisibleCharacters.length)
     );
