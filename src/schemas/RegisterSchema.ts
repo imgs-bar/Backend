@@ -5,7 +5,7 @@ export default object({
 
   username: string().alphanum().min(3).max(30).required(),
 
-  password: string().min(5).max(60).required(),
+  password: string().min(5).max(100).required(),
 
   invite: string().required(),
 
