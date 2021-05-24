@@ -39,11 +39,11 @@ export default async (req: Request, res: Response, next: NextFunction) => {
 
   const domain = await DomainModel.findOne({name: user.settings.domain.name});
 
-  // if (!domain)
-  //   return res.status(400).json({
-  //     success: false,
-  //     erorr: 'invalid domain, change it on the dashboard',
-  //   });
+  if (!domain)
+    return res.status(400).json({
+      success: false,
+      erorr: 'invalid domain, change it on the dashboard',
+    });
 
   req.user = user;
   next();

@@ -101,12 +101,21 @@ router.post(
       username,
       password,
       invite,
+      captcha,
     }: {
       email: string;
       username: string;
       password: string;
       invite: string;
+      captcha: string;
     } = req.body;
+
+    if (!(await checkCaptcha(captcha))) {
+      return res.status(401).json({
+        success: false,
+        error: 'invalid captcha',
+      });
+    }
 
     if (req.user)
       return res.status(400).json({
@@ -268,6 +277,7 @@ router.post(
     } = req.body;
 
     const user = await UserModel.findOne({username});
+
     if (!(await checkCaptcha(captcha))) {
       return res.status(401).json({
         success: false,
