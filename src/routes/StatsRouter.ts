@@ -10,11 +10,11 @@ const router = Router();
 
 router.get('/', AdminAuthMiddleware, async (req: Request, res: Response) => {
   const users = await UserModel.estimatedDocumentCount();
-  const blacklists = await UserModel.count({
+  const blacklists = await UserModel.countDocuments({
     'blacklisted.status': true,
   });
   const domains = await DomainModel.estimatedDocumentCount();
-  const premium = await UserModel.count({
+  const premium = await UserModel.countDocuments({
     premium: true,
   });
   const totalFiles = await FileModel.estimatedDocumentCount();
