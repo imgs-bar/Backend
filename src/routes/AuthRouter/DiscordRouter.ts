@@ -4,6 +4,7 @@ import OAuthMiddleware from '../../middlewares/OAuthMiddleware';
 import PasswordResetModel from '../../models/PasswordResetModel';
 import RefreshTokenModel from '../../models/RefreshTokenModel';
 import UserModel from '../../models/UserModel';
+import {logPossibleAlts} from '../../utils/LoggingUtil';
 
 const router = Router();
 
@@ -132,14 +133,30 @@ router.get(
 
       const {id, avatar, discriminator} = req.discord.user;
 
+      const discordUserBlacklist = UserModel.findOne({
+        'discord.id': id,
+        'blacklisted.status': true,
+      });
+
+      if (discordUserBlacklist) {
+        return res.status(401).json({
+          success: false,
+          error: 'discord is linked to blacklisted account.',
+        });
+      }
+
+      const alts = await UserModel.find({
+        'discord.id': id,
+      });
+
+      if (alts.length >= 1) {
+        await logPossibleAlts(alts, user);
+      }
+
       await req.discord.addGuildMember(user);
       let avatarurl;
       if (avatar && avatar.startsWith('a_')) {
-        avatarurl = `https://cdn.discordapp.com/${
-          avatar
-            ? `avatars/${id}/${avatar}`
-            : `embed/avatars/${discriminator % 5}`
-        }.gif`;
+        avatarurl = `https://cdn.discordapp.com/avatars/${id}/${avatar}.gif`;
       } else {
         avatarurl = `https://cdn.discordapp.com/${
           avatar

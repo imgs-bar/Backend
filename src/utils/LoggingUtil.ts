@@ -64,5 +64,59 @@ async function logCustomDomain(domain: Domain) {
     ],
   });
 }
+/**
+ * Log a possible alt to the discord.
+ * @param {User[]} relatedAlts The users.
+ * @param alt
+ */
+async function logPossibleAlts(relatedAlts: User[], alt: User) {
+  const altsList = relatedAlts
+    .map(d => d.username + (d.blacklisted.status ? ' (Blacklisted)' : ''))
+    .join(', ');
+  await Axios.post(process.env.CUSTOM_DOMAIN_WEBHOOK, {
+    embeds: [
+      {
+        title: `A new possible account has logged in'
+        }`,
+        fields: [
+          {
+            name: 'Username:',
+            value: alt.username,
+            inline: true,
+          },
+          {
+            name: 'UID:',
+            value: `${alt.uid}`,
+            inline: true,
+          },
+          {
+            name: 'Uploads:',
+            value: alt.uploads,
+            inline: true,
+          },
+          {
+            name: 'Discord:',
+            value: alt.discord.id ? `<@${alt.discord.id}>` : 'Not linked',
+            inline: true,
+          },
+          {
+            name: 'Relative accounts:',
+            value: `\`\`\`${altsList}\`\`\``,
+          },
+          {
+            name: 'UUID:',
+            value: `\`\`\`${alt._id}\`\`\``,
+          },
+        ],
+        thumbnail: {
+          url: alt.discord.avatar,
+        },
+        footer: {
+          text: 'We track alts by discord id.',
+        },
+      },
+    ],
+  });
+}
 
-export {logDomains, logCustomDomain};
+export {logDomains, logCustomDomain, logPossibleAlts};
