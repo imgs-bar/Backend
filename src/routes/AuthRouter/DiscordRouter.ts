@@ -133,7 +133,7 @@ router.get(
 
       const {id, avatar, discriminator} = req.discord.user;
 
-      const discordUserBlacklist = UserModel.findOne({
+      const discordUserBlacklist = await UserModel.findOne({
         'discord.id': id,
         'blacklisted.status': true,
       });
