@@ -191,9 +191,7 @@ function getMOTD() {
 function setMOTD(motd: string) {
   MOTD = motd;
 
-  CounterModel.findByIdAndUpdate('counter', {
-    motd,
-  });
+  CounterModel.findByIdAndUpdate('counter', {motd: motd}).then(() => {});
 }
 
 export {getMOTD, setMOTD};
