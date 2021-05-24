@@ -147,6 +147,7 @@ router.get(
 
       const alts = await UserModel.find({
         'discord.id': id,
+        username: {$ne: user.username},
       });
 
       if (alts.length >= 1) {

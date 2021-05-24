@@ -76,8 +76,7 @@ async function logPossibleAlts(relatedAlts: User[], alt: User) {
   await Axios.post(process.env.CUSTOM_DOMAIN_WEBHOOK, {
     embeds: [
       {
-        title: `A new possible account has logged in'
-        }`,
+        title: 'A new possible alt has logged in',
         fields: [
           {
             name: 'Username:',
