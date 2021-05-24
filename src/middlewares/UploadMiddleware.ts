@@ -42,7 +42,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
   if (!domain)
     return res.status(400).json({
       success: false,
-      erorr: 'invalid domain, change it on the dashboard',
+      error: 'invalid domain, change it on the dashboard',
     });
 
   req.user = user;

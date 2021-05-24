@@ -22,6 +22,8 @@ import ms from 'ms';
 import CounterModel from './models/CounterModel';
 import FileModel from './models/FileModel';
 import InvisibleUrlModel from './models/InvisibleUrlModel';
+import * as Sentry from '@sentry/node';
+import * as Tracing from '@sentry/tracing';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -64,6 +66,17 @@ try {
     }
   }
 
+  Sentry.init({
+    dsn:
+      'https://26c89f0e064f4e3abf1385baf32fdf61@o684538.ingest.sentry.io/5780233',
+    integrations: [
+      // enable HTTP calls tracing
+      new Sentry.Integrations.Http({tracing: true}),
+      // enable Express.js middleware tracing
+      new Tracing.Integrations.Express({app}),
+    ],
+  });
+
   if (errors.length > 0)
     throw new Error(
       `${errors.join(', ')} ${errors.length > 1 ? 'are' : 'is'} required`
@@ -82,6 +95,9 @@ try {
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     })
   );
+  app.use(Sentry.Handlers.requestHandler());
+  app.use(Sentry.Handlers.tracingHandler());
+
   app.set('trust proxy', 1);
   app.use(helmet.originAgentCluster());
   app.use(helmet.dnsPrefetchControl());
@@ -98,6 +114,8 @@ try {
   app.use('/shortener', ShortenerRouter);
   app.use('/bot', AdminRouter);
   app.use('/stats', StatsRouter);
+  app.use(Sentry.Handlers.errorHandler());
+
   app.use(
     (
       err: Error,
