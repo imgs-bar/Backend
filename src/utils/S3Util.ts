@@ -1,9 +1,5 @@
-import {Endpoint, S3} from 'aws-sdk';
-import DomainModel from '../models/DomainModel';
+import {S3} from 'aws-sdk';
 import {User} from '../models/UserModel';
-import CounterModel from '../models/CounterModel';
-import Axios, {Method} from 'axios';
-import FileModel from '../models/FileModel';
 
 /**
  * The aws-S3 session.
@@ -22,23 +18,6 @@ const s3 = new S3({
 //     },
 //     endpoint: process.env.S3_ENDPOINT,
 // });
-
-async function updateStorage() {
-  try {
-    const storageUsedfiles = await FileModel.aggregate([
-      {$group: {_id: null, storageUsed: {$sum: '$rawSize'}}},
-    ]);
-    const storageUsed = storageUsedfiles[0].storageUsed;
-    await CounterModel.findByIdAndUpdate('counter', {
-      storageUsed: storageUsed,
-    });
-    setTimeout(async () => {
-      await this.updateStorage();
-    }, 300000);
-  } catch (err) {
-    new Error(err);
-  }
-}
 
 /**
  * Wipe a user's files.
@@ -79,4 +58,4 @@ async function wipeFiles(user: User, dir = `${user._id}/`) {
   }
 }
 
-export {s3, wipeFiles, updateStorage};
+export {s3, wipeFiles};

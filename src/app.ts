@@ -11,7 +11,7 @@ import {
 } from './routes';
 import {connect} from 'mongoose';
 import {intervals} from './utils/Intervals';
-import {updateStorage, wipeFiles} from './utils/S3Util';
+import {wipeFiles} from './utils/S3Util';
 import express, {json} from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -126,13 +126,15 @@ try {
   });
 
   (async () => {
-    const findCounter = await CounterModel.findById('counter');
-    if (!findCounter)
-      await CounterModel.create({
+    let findCounter = await CounterModel.findById('counter');
+    if (!findCounter) {
+      findCounter = await CounterModel.create({
         _id: 'counter',
         count: 0,
-        storageUsed: 0,
+        motd: 'Message of the day',
       });
+    }
+    setMOTD(findCounter.motd);
     for (const user of await UserModel.find({
       'settings.autoWipe.enabled': true,
     })) {
@@ -176,16 +178,22 @@ try {
         });
       }
     }
-    await updateStorage();
     console.log('Started autowipe thread');
   })();
 } catch (err) {
   throw new Error(err);
 }
+
 function getMOTD() {
   return MOTD;
 }
+
 function setMOTD(motd: string) {
   MOTD = motd;
+
+  CounterModel.findByIdAndUpdate('counter', {
+    motd,
+  });
 }
+
 export {getMOTD, setMOTD};

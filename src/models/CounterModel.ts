@@ -13,11 +13,13 @@ export class Counter {
    */
   @prop()
   count: number;
+
   /**
-   * The current count.
+   * the current motd
    */
+
   @prop()
-  storageUsed: number;
+  motd: string;
 }
 
 export default getModelForClass(Counter);

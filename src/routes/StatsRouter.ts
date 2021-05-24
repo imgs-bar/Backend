@@ -19,7 +19,10 @@ router.get('/', AdminAuthMiddleware, async (req: Request, res: Response) => {
   });
   const totalFiles = await FileModel.estimatedDocumentCount();
 
-  const {storageUsed} = await CounterModel.findById('counter');
+  const storageUsedfiles = await FileModel.aggregate([
+    {$group: {_id: null, storageUsed: {$sum: '$rawSize'}}},
+  ]);
+  const storageUsed = storageUsedfiles[0].storageUsed;
 
   return res.status(200).json({
     users,
