@@ -68,6 +68,7 @@ function formatEmbed(
           .replace('{date}', file.timestamp.toLocaleDateString())
           .replace('{time}', file.timestamp.toLocaleTimeString())
           .replace('{timestamp}', file.timestamp.toLocaleString())
+          .replace('{domain}', file.domain)
           .replace(
             '{fakeurl}',
             formatFakeUrl(user.settings.fakeUrl.url, user, file)

@@ -26,7 +26,7 @@ function generateInvisibleId(): string {
   let url = '';
   const invisibleCharacters = ['\u200B', '\u2060', '\u200C', '\u200D'].join('');
 
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < 50; i++) {
     url += invisibleCharacters.charAt(
       Math.floor(Math.random() * invisibleCharacters.length)
     );

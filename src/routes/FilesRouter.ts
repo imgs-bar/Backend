@@ -90,6 +90,8 @@ router.post(
       'uploader.uuid': user._id,
     });
     if (fileWithSameHash) {
+      fileWithSameHash.embed = formatEmbed(embed, user, fileWithSameHash);
+      await fileWithSameHash.save();
       res.status(200).json({
         success: true,
         imageUrl: `https://${baseUrl}/${fileWithSameHash.filename}`,

@@ -103,9 +103,7 @@ router.post(
           }
         }
 
-        await CloudflareUtil.addDomain(name, wildcard).catch(e =>
-          console.log(e)
-        );
+        CloudflareUtil.addDomain(name, wildcard).catch(e => console.log(e));
 
         await DomainModel.create({
           name,
