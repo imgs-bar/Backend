@@ -33,7 +33,7 @@ router.get('/images', async (req: Request, res: Response) => {
       'uploader.uuid': user._id,
     });
 
-    for (const file of files) {
+    for (const file of files.reverse()) {
       images.push({
         link: `https://${file.domain}/${file.filename}`,
         dateUploaded: file.timestamp,
