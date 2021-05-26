@@ -14,7 +14,7 @@ import InvisibleUrlModel from '../models/InvisibleUrlModel';
 import RefreshTokenModel from '../models/RefreshTokenModel';
 import PremiumSchema from '../schemas/PremiumSchema';
 import SetUIDSchema from '../schemas/SetUIDSchema';
-import {addPremium, addRoles} from '../utils/OAuthUtil';
+import {addPremium, addRoles, removePremium} from '../utils/OAuthUtil';
 import {setMOTD} from '../app';
 
 const router = Router();
@@ -291,7 +291,7 @@ router.post(
 
     try {
       // this next line is lol, just lol.
-      const user = await UserModel.findOne({
+      let user = await UserModel.findOne({
         $or: [
           {_id: id},
           {username: id},
@@ -306,14 +306,20 @@ router.post(
           success: false,
           error: 'invalid user',
         });
-      await UserModel.findByIdAndUpdate(user._id, {
-        premium: true,
+
+      user = await UserModel.findByIdAndUpdate(user._id, {
+        premium: !user.premium,
       });
-      await addPremium(user).catch(e => console.log(e));
+
+      if (user.premium) {
+        await addPremium(user).catch();
+      } else {
+        await removePremium(user).catch();
+      }
 
       res.status(200).json({
         success: true,
-        message: 'set user as premium correctly',
+        message: 'updated user premium status correctly',
       });
     } catch (err) {
       res.status(500).json({

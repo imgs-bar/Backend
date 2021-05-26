@@ -194,6 +194,17 @@ async function addPremium(user: User) {
   );
 }
 
+async function removePremium(user: User) {
+  await request(
+    `/guilds/${process.env.DISCORD_SERVER_ID}/members/${user.discord.id}/roles/${process.env.PREMIUM_ROLE}`,
+    'DELETE',
+    null,
+    {
+      Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+    }
+  );
+}
+
 async function addRoles(user: User) {
   const userRole = process.env.USER_ROLE;
   const premiumRole = process.env.PREMIUM_ROLE;
@@ -237,4 +248,4 @@ async function addRoles(user: User) {
     console.log(e.stack);
   }
 }
-export {addPremium, addRoles};
+export {addPremium, addRoles, removePremium};
