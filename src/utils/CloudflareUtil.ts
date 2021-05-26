@@ -71,22 +71,22 @@ export default new (class CloudflareUtil {
       ttl: 1,
       proxied: true,
     });
-    // await this.request(`/zones/${id}/pagerules`, 'POST', {
-    //   status: 'active',
-    //   priority: 1,
-    //   actions: [
-    //     {
-    //       id: 'forwarding_url',
-    //       value: {url: 'https://i.imgs.bar/$2', status_code: 302},
-    //     },
-    //   ],
-    //   targets: [
-    //     {
-    //       target: 'url',
-    //       constraint: {operator: 'matches', value: `*${domain}/*`},
-    //     },
-    //   ],
-    // });
+    await this.request(`/zones/${id}/pagerules`, 'POST', {
+      status: 'active',
+      priority: 1,
+      actions: [
+        {
+          id: 'forwarding_url',
+          value: {url: 'https://i.imgs.bar/$2', status_code: 302},
+        },
+      ],
+      targets: [
+        {
+          target: 'url',
+          constraint: {operator: 'matches', value: `*${domain}/*`},
+        },
+      ],
+    });
 
     if (wildcard)
       await this.request(`/zones/${id}/dns_records`, 'POST', {

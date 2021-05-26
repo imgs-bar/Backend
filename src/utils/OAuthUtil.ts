@@ -4,6 +4,37 @@ import {DiscordUserInterface} from './interfaces/DiscordUserInterface';
 import {stringify} from 'querystring';
 import {User} from '../models/UserModel';
 
+/**
+ * Send a request to the discord api.
+ * @param {string} endpoint The endpoint to send a request to.
+ * @param {Method} method The request method.
+ * @param {object} body The request body.
+ * @param {object} headers The request headers.
+ */
+export async function request(
+  endpoint: string,
+  method: Method,
+  body?: object | string,
+  headers?: object
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+) {
+  try {
+    const baseUrl = 'https://discord.com/api';
+    const {data} = await Axios({
+      url: `${baseUrl}${endpoint}`,
+      method,
+      headers: headers ? headers : null,
+      data: body ? body : null,
+    });
+
+    return data;
+  } catch (err) {
+    throw new Error(
+      err.response.data.error_description || err.response.data.message
+    );
+  }
+}
+
 export class OAuth {
   /**
    * The user's access token & refresh token.
@@ -25,49 +56,18 @@ export class OAuth {
   }
 
   /**
-   * Send a request to the discord api.
-   * @param {string} endpoint The endpoint to send a request to.
-   * @param {Method} method The request method.
-   * @param {object} body The request body.
-   * @param {object} headers The request headers.
-   */
-  request = async (
-    endpoint: string,
-    method: Method,
-    body?: object | string,
-    headers?: object
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): Promise<any> => {
-    try {
-      const baseUrl = 'https://discord.com/api';
-      const {data} = await Axios({
-        url: `${baseUrl}${endpoint}`,
-        method,
-        headers: headers ? headers : null,
-        data: body ? body : null,
-      });
-
-      return data;
-    } catch (err) {
-      throw new Error(
-        err.response.data.error_description || err.response.data.message
-      );
-    }
-  };
-
-  /**
    * Verify that an OAuth grant code is valid.
-   * @param {string} request The request type, defaults to login.
+   * @param {string} requestType The request type, defaults to login.
    */
-  validate = async (request = 'login'): Promise<void> => {
-    this.authorization = await this.request(
+  validate = async (requestType = 'login'): Promise<void> => {
+    this.authorization = await request(
       '/oauth2/token',
       'POST',
       stringify({
         client_id: process.env.DISCORD_CLIENT_ID,
         client_secret: process.env.DISCORD_CLIENT_SECRET,
         redirect_uri:
-          request !== 'login'
+          requestType !== 'login'
             ? process.env.DISCORD_LINK_REDIRECT_URI
             : process.env.DISCORD_LOGIN_REDIRECT_URI,
         grant_type: 'authorization_code',
@@ -84,7 +84,7 @@ export class OAuth {
    * @return {DiscordUserInterface} The user's info.
    */
   getUser = async (): Promise<DiscordUserInterface> => {
-    this.user = await this.request('/users/@me', 'GET', null, {
+    this.user = await request('/users/@me', 'GET', null, {
       Authorization: `Bearer ${this.authorization.access_token}`,
     });
 
@@ -103,7 +103,7 @@ export class OAuth {
       nick: user.username,
     });
     try {
-      await this.request(
+      await request(
         `/guilds/${process.env.DISCORD_SERVER_ID}/members/${this.user.id}`,
         'PUT',
         data,
@@ -118,7 +118,7 @@ export class OAuth {
         access_token: this.authorization.access_token,
       });
 
-      await this.request(
+      await request(
         `/guilds/${process.env.DISCORD_SERVER_ID}/members/${this.user.id}/roles/${userRole}`,
         'PUT',
         data,
@@ -132,7 +132,7 @@ export class OAuth {
 
     if (user.discord.id && user.discord.id !== this.user.id) {
       try {
-        data = await this.request(
+        data = await request(
           `/guilds/${process.env.DISCORD_SERVER_ID}/members/${user.discord.id}`,
           'GET',
           null,
@@ -146,7 +146,7 @@ export class OAuth {
           nick: user.username,
         });
 
-        await this.request(
+        await request(
           `/guilds/${process.env.DISCORD_SERVER_ID}/members/${this.user.id}`,
           'PATCH',
           nickData,
@@ -156,7 +156,7 @@ export class OAuth {
         );
 
         if (data.roles.includes(userRole))
-          await this.request(
+          await request(
             `/guilds/${process.env.DISCORD_SERVER_ID}/members/${user.discord.id}/roles/${userRole}`,
             'DELETE',
             null,
@@ -167,7 +167,7 @@ export class OAuth {
           );
 
         if (user.premium) {
-          await this.request(
+          await request(
             `/guilds/${process.env.DISCORD_SERVER_ID}/members/${this.user.id}/roles/${premiumRole}`,
             'PUT',
             null,
@@ -184,7 +184,7 @@ export class OAuth {
 }
 
 async function addPremium(user: User) {
-  await this.request(
+  await request(
     `/guilds/${process.env.DISCORD_SERVER_ID}/members/${user.discord.id}/roles/${process.env.PREMIUM_ROLE}`,
     'PUT',
     null,
@@ -203,7 +203,7 @@ async function addRoles(user: User) {
     nick: user.username,
   });
   try {
-    await this.request(
+    await request(
       `/guilds/${process.env.DISCORD_SERVER_ID}/members/${this.user.id}/roles/${userRole}`,
       'PUT',
       data,
@@ -214,7 +214,7 @@ async function addRoles(user: User) {
     data = JSON.stringify({
       nick: user.username,
     });
-    await this.request(
+    await request(
       `/guilds/${process.env.DISCORD_SERVER_ID}/members/${this.user.id}`,
       'PATCH',
       data,
@@ -224,7 +224,7 @@ async function addRoles(user: User) {
     );
 
     if (user.premium) {
-      await this.request(
+      await request(
         `/guilds/${process.env.DISCORD_SERVER_ID}/members/${user.discord.id}/roles/${premiumRole}`,
         'PUT',
         null,
