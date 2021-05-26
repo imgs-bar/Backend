@@ -158,7 +158,7 @@ router.post(
         uploads: +1,
       },
     });
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       imageUrl,
       deletionUrl,
