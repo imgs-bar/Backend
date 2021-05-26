@@ -211,7 +211,6 @@ router.post(
         domain,
       });
     } catch (err) {
-      console.log(err.response.data);
       res.status(500).json({
         success: false,
         error: err.message,

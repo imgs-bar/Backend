@@ -93,7 +93,7 @@ router.post(
     if (fileWithSameHash) {
       fileWithSameHash.embed = formatEmbed(embed, user, fileWithSameHash);
       await fileWithSameHash.save();
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         imageUrl: `https://${baseUrl}/${fileWithSameHash.filename}`,
         deletionUrl: `${process.env.BACKEND_URL}/files/delete?key=${fileWithSameHash.deletionKey}`,
