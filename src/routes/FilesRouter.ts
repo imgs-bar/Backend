@@ -24,7 +24,6 @@ const router = Router();
 const fileLimiter = rateLimit({
   windowMs: 10 * 1000,
   max: 3,
-  headers: false,
 });
 
 router.post(

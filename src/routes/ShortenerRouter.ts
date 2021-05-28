@@ -9,8 +9,14 @@ import DeletionSchema from '../schemas/DeletionSchema';
 import ShortenerSchema from '../schemas/ShortenerSchema';
 import AuthMiddleware from '../middlewares/AuthMiddleware';
 import {isMalicious} from '../utils/SafetyUtils';
+const rateLimit = require('express-rate-limit');
 
 const router = Router();
+
+const urlLimiter = rateLimit({
+  windowMs: 10 * 1000,
+  max: 3,
+});
 
 router.get('/urls', AuthMiddleware, async (req: Request, res: Response) => {
   const {user} = req;
@@ -35,6 +41,7 @@ router.get('/urls', AuthMiddleware, async (req: Request, res: Response) => {
 
 router.post(
   '/',
+  urlLimiter,
   UploadMiddleware,
   ValidationMiddleware(ShortenerSchema),
   async (req: Request, res: Response) => {
@@ -120,6 +127,7 @@ router.post(
 
 router.get(
   '/delete',
+  urlLimiter,
   ValidationMiddleware(DeletionSchema, 'query'),
   async (req: Request, res: Response) => {
     const deletionKey = req.query.key as string;
