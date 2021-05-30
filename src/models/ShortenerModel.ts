@@ -31,6 +31,9 @@ export class Shortener {
    */
   @prop()
   user: string;
+
+  @prop()
+  url: string;
 }
 
 export default getModelForClass(Shortener);

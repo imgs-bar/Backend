@@ -108,6 +108,7 @@ router.post(
         deletionKey,
         timestamp: new Date(),
         user: user._id,
+        url: shortendUrl,
       });
 
       res.status(200).json({
