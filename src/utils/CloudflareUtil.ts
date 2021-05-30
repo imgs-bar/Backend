@@ -67,7 +67,7 @@ export default new (class CloudflareUtil {
     await this.request(`/zones/${id}/dns_records`, 'POST', {
       type: 'A',
       name: '@',
-      content: '1.1.1.1',
+      content: '65.21.154.235',
       ttl: 1,
       proxied: true,
     });
