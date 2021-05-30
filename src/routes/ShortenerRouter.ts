@@ -28,7 +28,7 @@ router.get('/urls', AuthMiddleware, async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      urls,
+      urls: urls.reverse(),
       count: urls.length,
     });
   } catch (err) {
@@ -108,7 +108,7 @@ router.post(
         deletionKey,
         timestamp: new Date(),
         user: user._id,
-        url: shortendUrl,
+        shortendUrl,
       });
 
       res.status(200).json({

@@ -33,7 +33,7 @@ export class Shortener {
   user: string;
 
   @prop()
-  url: string;
+  shortendUrl: string;
 }
 
 export default getModelForClass(Shortener);
