@@ -90,7 +90,6 @@ try {
         'https://imgs.bar',
         'http://localhost:3000',
         'http://localhost:3000',
-        'https://frontend-rhp9.pages.dev',
       ],
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     })

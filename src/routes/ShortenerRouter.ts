@@ -99,7 +99,7 @@ router.post(
           }${domain.name}`;
 
       const deletionKey = generateString(40);
-      const deletionUrl = `${process.env.BACKEND_URL}/shortener/delete?key=${deletionKey}`;
+      const deletionUrl = `https://imgs.bar/api/shortener/delete?key=${deletionKey}`;
       const shortendUrl = `https://${baseUrl}/s/${shortId}`;
 
       await ShortenerModel.create({
@@ -172,7 +172,7 @@ router.get(
       Name: 'imgs.bar shortener',
       DestinationType: 'URLShortener',
       RequestMethod: 'POST',
-      RequestURL: `${process.env.BACKEND_URL}/shortener`,
+      RequestURL: 'https://api.imgs.bar/shortener',
       Headers: {
         key: user.key,
       },

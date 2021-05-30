@@ -95,14 +95,14 @@ router.post(
       return res.status(200).json({
         success: true,
         imageUrl: `https://${baseUrl}/${fileWithSameHash.filename}`,
-        deletionUrl: `${process.env.BACKEND_URL}/files/delete?key=${fileWithSameHash.deletionKey}`,
+        deletionUrl: `https://imgs.bar/api/files/delete?key=${fileWithSameHash.deletionKey}`,
       });
     }
 
     let imageUrl = `https://${baseUrl}/${file.filename}`;
 
     const deletionKey = generateString(40);
-    const deletionUrl = `${process.env.BACKEND_URL}/files/delete?key=${deletionKey}`;
+    const deletionUrl = `https://imgs.bar/api/files/delete?key=${deletionKey}`;
     const timestamp = new Date();
 
     file = new FileModel({
