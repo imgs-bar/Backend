@@ -39,7 +39,7 @@ router.post('/', AuthMiddleware, async (req: Request, res: Response) => {
 
   res.status(200).json({
     success: true,
-    link: `https://imgs.bar/?code=${invite}`,
+    link: `https://imgs.gifts/?code=${invite}`,
     _id: invite,
     dateCreated,
   });
