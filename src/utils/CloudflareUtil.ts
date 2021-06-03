@@ -65,9 +65,9 @@ export default new (class CloudflareUtil {
    */
   async setRecords(domain: string, wildcard: boolean, id: string) {
     await this.request(`/zones/${id}/dns_records`, 'POST', {
-      type: 'A',
+      type: 'CNAME',
       name: '@',
-      content: '1.1.1.1',
+      content: 'i.imgs.bar',
       ttl: 1,
       proxied: true,
     });

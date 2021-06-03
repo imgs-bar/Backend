@@ -72,13 +72,10 @@ router.post('/token', async (req: Request, res: Response) => {
       });
 
     if (!user.settings.embed.siteName) {
-      await UserModel.findByIdAndUpdate(user._id, {
-        'settings.embed.siteName': 'imgs.bar',
-      });
+      user.settings.embed.siteName = 'https://imgs.bar';
     }
-    await UserModel.findByIdAndUpdate(user._id, {
-      lastLogin: new Date(),
-    });
+    user.lastLogin = new Date();
+    await user.save();
 
     const accessToken = sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: '60m',

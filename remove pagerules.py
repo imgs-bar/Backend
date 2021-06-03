@@ -27,24 +27,24 @@ def main():
             page_rules = cf.zones.pagerules.get(zone_id)
             for rec in page_rules['result']:
                 cf.zones.pagerules.delete(zone_id, rec['id'])
-            cf.zones.dns_records.post(zone_id, data={'name': '@', 'type': 'A', 'content': '1.1.1.1', 'ttl': 1, 'proxied': True})
+            cf.zones.dns_records.post(zone_id, data={'name': '@', 'type': 'CNAME', 'content': 'i.imgs.bar', 'ttl': 1, 'proxied': True})
             cf.zones.dns_records.post(zone_id, data={'name': '*', 'type': 'CNAME', 'content': zone_name, 'ttl': 1})
-            cf.zones.pagerules.post(zone_id, data={
-                "status": 'active',
-                "priority": 1,
-                "actions": [
-                    {
-                        "id": 'forwarding_url',
-                        "value": {"url": 'https://i.imgs.bar/$2', "status_code": 302},
-                    },
-                ],
-                "targets": [
-                    {
-                        "target": 'url',
-                        "constraint": {"operator": 'matches', "value": "*" + zone_name + "/*"},
-            },
-            ],
-            })
+            # cf.zones.pagerules.post(zone_id, data={
+            #     "status": 'active',
+            #     "priority": 1,
+            #     "actions": [
+            #         {
+            #             "id": 'forwarding_url',
+            #             "value": {"url": 'https://i.imgs.bar/$2', "status_code": 302},
+            #         },
+            #     ],
+            #     "targets": [
+            #         {
+            #             "target": 'url',
+            #             "constraint": {"operator": 'matches', "value": "*" + zone_name + "/*"},
+            # },
+            # ],
+            # })
         total_pages = raw_results['result_info']['total_pages']
         if page_number == total_pages:
             break
