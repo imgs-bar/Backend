@@ -71,12 +71,17 @@ router.post('/token', async (req: Request, res: Response) => {
         error: 'invalid refresh token',
       });
 
+    if (!user.settings.embed.siteName) {
+      await UserModel.findByIdAndUpdate(user._id, {
+        'settings.embed.siteName': 'imgs.bar',
+      });
+    }
     await UserModel.findByIdAndUpdate(user._id, {
       lastLogin: new Date(),
     });
 
     const accessToken = sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: '15m',
+      expiresIn: '60m',
     });
 
     res.status(200).json({
@@ -229,6 +234,7 @@ router.post(
           embed: {
             enabled: true,
             color: '#13ed7c',
+            siteName: 'default',
             title: 'default',
             description: 'default',
             author: 'default',
@@ -236,7 +242,7 @@ router.post(
           },
           fakeUrl: {
             enabled: false,
-            url: 'google.com',
+            url: 'https://google.com',
           },
           autoWipe: {
             enabled: false,
@@ -322,6 +328,12 @@ router.post(
               url: 'https://google.com',
             },
           },
+        });
+      }
+
+      if (!user.settings.embed.siteName) {
+        await UserModel.findByIdAndUpdate(user._id, {
+          'settings.embed.siteName': 'imgs.bar',
         });
       }
 

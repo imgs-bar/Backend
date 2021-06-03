@@ -44,9 +44,9 @@ function formatEmbed(
   user: User,
   file: File
 ): EmbedInterface {
-  for (const field of ['title', 'description', 'author']) {
+  for (const field of ['title', 'description', 'author', 'siteName']) {
     if (embed[field]) {
-      if (embed[field] === 'default') {
+      if (!embed[field] || embed[field] === 'default') {
         switch (field) {
           case 'title':
             embed[field] = file.filename;
@@ -58,6 +58,9 @@ function formatEmbed(
             break;
           case 'author':
             embed[field] = user.username;
+            break;
+          case 'siteName':
+            embed[field] = 'imgs.ba';
         }
       } else {
         embed[field] = embed[field]

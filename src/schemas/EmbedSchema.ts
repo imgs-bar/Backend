@@ -5,6 +5,8 @@ export default object({
 
   title: string().optional().allow('').max(200),
 
+  siteName: string().optional().allow('').max(200),
+
   description: string().optional().allow('').max(2000),
 
   author: string().optional().allow('').max(200),

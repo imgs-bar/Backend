@@ -204,7 +204,7 @@ router.put(
   '/embed',
   ValidationMiddleware(EmbedSchema),
   async (req: Request, res: Response) => {
-    const {color, title, description, author, randomColor} = req.body;
+    const {color, title, description, author, randomColor, siteName} = req.body;
     const {user} = req;
 
     try {
@@ -214,6 +214,7 @@ router.put(
           embed: {
             ...user.settings.embed,
             title,
+            siteName,
             description,
             color,
             author,
