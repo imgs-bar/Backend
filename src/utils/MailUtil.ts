@@ -2,7 +2,7 @@ import Mail from 'nodemailer/lib/mailer';
 import nodemailer from 'nodemailer';
 import {User} from '../models/UserModel';
 
-const emailAddress = 'dnywtf@gmail.com';
+const emailAddress = 'noreply@imgs.bar';
 
 /**
  * The nodemailer transporter.
@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: 'apikey',
     pass:
-      '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\n',
+      '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',
   },
 });
 
