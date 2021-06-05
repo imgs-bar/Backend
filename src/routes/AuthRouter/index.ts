@@ -14,6 +14,7 @@ import PasswordResetModel from '../../models/PasswordResetModel';
 import CounterModel from '../../models/CounterModel';
 import RefreshTokenModel from '../../models/RefreshTokenModel';
 import {checkCaptcha} from '../../utils/CaptchaUtil';
+import PasswordResetsRouter from './PasswordResetsRouter';
 
 const router = Router();
 
@@ -28,6 +29,7 @@ async function getNextUid() {
 }
 
 router.use('/discord', DiscordRouter);
+router.use('/password_resets', PasswordResetsRouter);
 
 router.post('/token', async (req: Request, res: Response) => {
   const cookie = req.cookies['x-refresh-token'];

@@ -21,14 +21,14 @@ def main():
                 continue
             if zone_name.endswith('.cf'):
                 continue
-            dns_recs = cf.zones.dns_records.get(zone_id)
-            for rec in dns_recs['result']:
-                cf.zones.dns_records.delete(zone_id, rec['id'])
+            #dns_recs = cf.zones.dns_records.get(zone_id)
+            #for rec in dns_recs['result']:
+                #cf.zones.dns_records.delete(zone_id, rec['id'])
             page_rules = cf.zones.pagerules.get(zone_id)
             for rec in page_rules['result']:
                 cf.zones.pagerules.delete(zone_id, rec['id'])
-            cf.zones.dns_records.post(zone_id, data={'name': '@', 'type': 'CNAME', 'content': 'i.imgs.bar', 'ttl': 1, 'proxied': True})
-            cf.zones.dns_records.post(zone_id, data={'name': '*', 'type': 'CNAME', 'content': zone_name, 'ttl': 1})
+            #cf.zones.dns_records.post(zone_id, data={'name': '@', 'type': 'CNAME', 'content': 'i.imgs.bar', 'ttl': 1, 'proxied': True})
+            #cf.zones.dns_records.post(zone_id, data={'name': '*', 'type': 'CNAME', 'content': zone_name, 'ttl': 1})
             # cf.zones.pagerules.post(zone_id, data={
             #     "status": 'active',
             #     "priority": 1,

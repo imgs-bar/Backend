@@ -17,6 +17,7 @@ import Archiver from 'archiver';
 import {extname} from 'path';
 import CounterModel from '../models/CounterModel';
 import AdminAuthMiddleware from '../middlewares/AdminAuthMiddleware';
+import {sendFileArchive} from '../utils/MailUtil';
 
 const rateLimit = require('express-rate-limit');
 
@@ -434,10 +435,10 @@ router.get('/archive', AuthMiddleware, async (req: Request, res: Response) => {
     const {Key} = await uploaded.promise();
     const Location = `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${Key}`;
 
-    // await sendFileArchive(
-    //   user,
-    //   s3.getObject({Bucket: process.env.S3_BUCKET, Key}).createReadStream()
-    // );
+    await sendFileArchive(
+      user,
+      s3.getObject({Bucket: process.env.S3_BUCKET, Key}).createReadStream()
+    );
 
     await UserModel.findByIdAndUpdate(user._id, {
       lastFileArchive: new Date(),
