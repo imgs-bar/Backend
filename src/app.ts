@@ -22,6 +22,7 @@ import ms from 'ms';
 import CounterModel from './models/CounterModel';
 import FileModel from './models/FileModel';
 import InvisibleUrlModel from './models/InvisibleUrlModel';
+import EmojiUrlModel from './models/EmojiUrlModel';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
 
@@ -181,6 +182,10 @@ try {
             });
 
             await InvisibleUrlModel.deleteMany({
+              uploader: user._id,
+            });
+
+            await EmojiUrlModel.deleteMany({
               uploader: user._id,
             });
 

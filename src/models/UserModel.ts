@@ -182,7 +182,8 @@ export class User {
       interval: number;
     };
     showLink: boolean;
-    invisibleUrl: boolean;
+      invisibleUrl: boolean;
+      emojiUrl: boolean;
     longUrl: boolean;
   };
 }

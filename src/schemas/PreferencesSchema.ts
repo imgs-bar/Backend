@@ -7,6 +7,8 @@ export default object({
 
   invisibleUrl: boolean().optional(),
 
+  emojiUrl: boolean().optional(),
+
   randomDomain: boolean().optional(),
 
   embeds: boolean().optional(),

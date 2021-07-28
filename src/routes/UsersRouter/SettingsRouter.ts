@@ -4,6 +4,7 @@ import ValidationMiddleware from '../../middlewares/ValidationMiddleware';
 import DomainModel from '../../models/DomainModel';
 import FileModel from '../../models/FileModel';
 import InvisibleUrlModel from '../../models/InvisibleUrlModel';
+import EmojiUrlModel from '../../models/EmojiUrlModel';
 import UserModel from '../../models/UserModel';
 import EmbedSchema from '../../schemas/EmbedSchema';
 import PreferencesSchema from '../../schemas/PreferencesSchema';
@@ -161,6 +162,10 @@ router.put(
                     uploader: user._id,
                   });
 
+                  await EmojiUrlModel.deleteMany({
+                    uploader: user._id,
+                  });
+
                   await UserModel.findByIdAndUpdate(user._id, {
                     uploads: 0,
                   });
@@ -309,6 +314,9 @@ router.put(
               'uploader.uuid': user._id,
             });
             await InvisibleUrlModel.deleteMany({
+              uploader: user._id,
+            });
+            await EmojiUrlModel.deleteMany({
               uploader: user._id,
             });
             await UserModel.findByIdAndUpdate(user._id, {

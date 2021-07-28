@@ -249,6 +249,7 @@ router.post(
           },
           showLink: false,
           invisibleUrl: false,
+          emojiUrl: false,
           longUrl: false,
         },
       });

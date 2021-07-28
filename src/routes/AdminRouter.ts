@@ -11,6 +11,7 @@ import FileModel from '../models/FileModel';
 import { s3, wipeFiles } from '../utils/S3Util';
 import GenInvSchema from '../schemas/GenInvSchema';
 import InvisibleUrlModel from '../models/InvisibleUrlModel';
+import EmojiUrlModel from '../models/EmojiUrlModel';
 import RefreshTokenModel from '../models/RefreshTokenModel';
 import PremiumSchema from '../schemas/PremiumSchema';
 import SetUIDSchema from '../schemas/SetUIDSchema';
@@ -437,6 +438,9 @@ router.post(
       await InvisibleUrlModel.deleteMany({
         uploader: user._id,
       });
+      await EmojiUrlModel.deleteMany({
+        uploader: user._id,
+      });
       await InviteModel.deleteMany({
         'createdBy.uuid': user._id,
       });
@@ -478,6 +482,9 @@ router.post(
         'uploader.uuid': user._id,
       });
       await InvisibleUrlModel.deleteMany({
+        uploader: user._id,
+      });
+      await EmojiUrlModel.deleteMany({
         uploader: user._id,
       });
       await InviteModel.deleteMany({
