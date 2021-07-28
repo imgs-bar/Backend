@@ -13,7 +13,7 @@ import DiscordRouter from './DiscordRouter';
 import PasswordResetModel from '../../models/PasswordResetModel';
 import CounterModel from '../../models/CounterModel';
 import RefreshTokenModel from '../../models/RefreshTokenModel';
-import {checkCaptcha} from '../../utils/CaptchaUtil';
+// import {checkCaptcha} from '../../utils/CaptchaUtil';
 import PasswordResetsRouter from './PasswordResetsRouter';
 
 const router = Router();
@@ -105,21 +105,21 @@ router.post(
       username,
       password,
       invite,
-      captcha,
+      // captcha,
     }: {
       email: string;
       username: string;
       password: string;
       invite: string;
-      captcha: string;
+      // captcha: string;
     } = req.body;
 
-    if (!(await checkCaptcha(captcha))) {
-      return res.status(401).json({
-        success: false,
-        error: 'invalid captcha',
-      });
-    }
+    // if (!(await checkCaptcha(captcha))) {
+    //   return res.status(401).json({
+    //     success: false,
+    //     error: 'invalid captcha',
+    //   });
+    // }
 
     if (req.user)
       return res.status(400).json({
@@ -274,21 +274,21 @@ router.post(
     const {
       username,
       password,
-      captcha,
+      // captcha,
     }: {
       username: string;
       password: string;
-      captcha: string;
+      // captcha: string;
     } = req.body;
 
     const user = await UserModel.findOne({username});
 
-    if (!(await checkCaptcha(captcha))) {
-      return res.status(401).json({
-        success: false,
-        error: 'invalid captcha',
-      });
-    }
+    // if (!(await checkCaptcha(captcha))) {
+    //   return res.status(401).json({
+    //     success: false,
+    //     error: 'invalid captcha',
+    //   });
+    // }
 
     if (
       !user ||

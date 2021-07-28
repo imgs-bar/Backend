@@ -9,5 +9,5 @@ export default object({
 
   invite: string().required(),
 
-  captcha: string().required(),
+  // captcha: string().required(),
 }).options({abortEarly: false});

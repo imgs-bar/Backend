@@ -5,5 +5,5 @@ export default object({
 
   password: string().min(5).max(100).required(),
 
-  captcha: string().required(),
+  // captcha: string().required(),
 }).options({abortEarly: false});

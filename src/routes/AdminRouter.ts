@@ -1,5 +1,5 @@
-import {Request, Response, Router} from 'express';
-import {generateInvite} from '../utils/GenerateUtil';
+import { Request, Response, Router } from 'express';
+import { generateInvite } from '../utils/GenerateUtil';
 import AdminMiddleware from '../middlewares/AdminMiddleware';
 import InviteModel from '../models/InviteModel';
 import ValidationMiddleware from '../middlewares/ValidationMiddleware';
@@ -8,14 +8,14 @@ import UserModel from '../models/UserModel';
 import InviteAddSchema from '../schemas/InviteAddSchema';
 import InviteWaveSchema from '../schemas/InviteWaveSchema';
 import FileModel from '../models/FileModel';
-import {s3, wipeFiles} from '../utils/S3Util';
+import { s3, wipeFiles } from '../utils/S3Util';
 import GenInvSchema from '../schemas/GenInvSchema';
 import InvisibleUrlModel from '../models/InvisibleUrlModel';
 import RefreshTokenModel from '../models/RefreshTokenModel';
 import PremiumSchema from '../schemas/PremiumSchema';
 import SetUIDSchema from '../schemas/SetUIDSchema';
-import {addPremium, addRoles, removePremium} from '../utils/OAuthUtil';
-import {setMOTD} from '../app';
+import { addPremium, addRoles, removePremium } from '../utils/OAuthUtil';
+import { setMOTD } from '../app';
 
 const router = Router();
 
@@ -25,17 +25,17 @@ router.post(
   '/invites',
   ValidationMiddleware(GenInvSchema),
   async (req: Request, res: Response) => {
-    const {executerId} = req.body;
+    const { executerId } = req.body;
     const invite = generateInvite();
     const dateCreated = new Date();
     const executer = await UserModel.findOne({
       $or: [
-        {_id: executerId},
-        {username: executerId},
-        {email: executerId},
-        {invite: executerId},
-        {key: executerId},
-        {'discord.id': executerId.replace('<@!', '').replace('>', '')},
+        { _id: executerId },
+        { username: executerId },
+        { email: executerId },
+        { invite: executerId },
+        { key: executerId },
+        { 'discord.id': executerId.replace('<@!', '').replace('>', '') },
       ],
     });
     if (!executer)
@@ -77,18 +77,18 @@ router.post(
   '/blacklist',
   ValidationMiddleware(BlacklistSchema),
   async (req: Request, res: Response) => {
-    const {id, reason, executerId} = req.body;
+    const { id, reason, executerId } = req.body;
 
     try {
       // this next line is lol, just lol.
       const user = await UserModel.findOne({
         $or: [
-          {_id: id},
-          {username: id},
-          {email: id},
-          {invite: id},
-          {key: id},
-          {'discord.id': id.replace('<@!', '').replace('>', '')},
+          { _id: id },
+          { username: id },
+          { email: id },
+          { invite: id },
+          { key: id },
+          { 'discord.id': id.replace('<@!', '').replace('>', '') },
         ],
       });
 
@@ -105,12 +105,12 @@ router.post(
         });
       const executer = await UserModel.findOne({
         $or: [
-          {_id: executerId},
-          {username: executerId},
-          {email: executerId},
-          {invite: executerId},
-          {key: executerId},
-          {'discord.id': executerId.replace('<@!', '').replace('>', '')},
+          { _id: executerId },
+          { username: executerId },
+          { email: executerId },
+          { invite: executerId },
+          { key: executerId },
+          { 'discord.id': executerId.replace('<@!', '').replace('>', '') },
         ],
       });
       if (!executer)
@@ -122,9 +122,8 @@ router.post(
       await UserModel.findByIdAndUpdate(user._id, {
         blacklisted: {
           status: true,
-          reason: `${reason ? reason : 'No reason provided'} - ${
-            executer.username
-          }`,
+          reason: `${reason ? reason : 'No reason provided'} - ${executer.username
+            }`,
         },
       });
 
@@ -145,18 +144,18 @@ router.post(
   '/unblacklist',
   ValidationMiddleware(BlacklistSchema),
   async (req: Request, res: Response) => {
-    const {id, reason, executerId} = req.body;
+    const { id, reason, executerId } = req.body;
 
     try {
       // this next line is lol, just lol.
       const user = await UserModel.findOne({
         $or: [
-          {_id: id},
-          {username: id},
-          {email: id},
-          {invite: id},
-          {key: id},
-          {'discord.id': id.replace('<@!', '').replace('>', '')},
+          { _id: id },
+          { username: id },
+          { email: id },
+          { invite: id },
+          { key: id },
+          { 'discord.id': id.replace('<@!', '').replace('>', '') },
         ],
       });
       if (!user)
@@ -167,12 +166,12 @@ router.post(
 
       const executer = await UserModel.findOne({
         $or: [
-          {_id: executerId},
-          {username: executerId},
-          {email: executerId},
-          {invite: executerId},
-          {key: executerId},
-          {'discord.id': executerId.replace('<@!', '').replace('>', '')},
+          { _id: executerId },
+          { username: executerId },
+          { email: executerId },
+          { invite: executerId },
+          { key: executerId },
+          { 'discord.id': executerId.replace('<@!', '').replace('>', '') },
         ],
       });
       if (!executer)
@@ -190,9 +189,8 @@ router.post(
       await UserModel.findByIdAndUpdate(user._id, {
         blacklisted: {
           status: false,
-          reason: `Unblacklisted by ${executer.username} for: ${
-            reason ? reason : 'No reason provided'
-          }`,
+          reason: `Unblacklisted by ${executer.username} for: ${reason ? reason : 'No reason provided'
+            }`,
         },
       });
 
@@ -209,8 +207,8 @@ router.post(
   }
 );
 router.delete('/files/:id', async (req: Request, res: Response) => {
-  const {id} = req.params;
-  const file = await FileModel.findOne({filename: id});
+  const { id } = req.params;
+  const file = await FileModel.findOne({ filename: id });
   if (!file)
     return res.status(404).json({
       success: false,
@@ -220,7 +218,7 @@ router.delete('/files/:id', async (req: Request, res: Response) => {
     Bucket: process.env.S3_BUCKET,
     Key: file.key,
   };
-  const user = await UserModel.findOne({_id: file.uploader.uuid});
+  const user = await UserModel.findOne({ _id: file.uploader.uuid });
   try {
     await s3.deleteObject(params).promise();
 
@@ -248,18 +246,18 @@ router.post(
   '/inviteadd',
   ValidationMiddleware(InviteAddSchema),
   async (req: Request, res: Response) => {
-    const {id, amount} = req.body;
+    const { id, amount } = req.body;
 
     try {
       // this next line is lol, just lol.
       const user = await UserModel.findOne({
         $or: [
-          {_id: id},
-          {username: id},
-          {email: id},
-          {invite: id},
-          {key: id},
-          {'discord.id': id.replace('<@!', '').replace('>', '')},
+          { _id: id },
+          { username: id },
+          { email: id },
+          { invite: id },
+          { key: id },
+          { 'discord.id': id.replace('<@!', '').replace('>', '') },
         ],
       });
       if (!user)
@@ -287,18 +285,18 @@ router.post(
   '/premium',
   ValidationMiddleware(PremiumSchema),
   async (req: Request, res: Response) => {
-    const {id} = req.body;
+    const { id } = req.body;
 
     try {
       // this next line is lol, just lol.
       let user = await UserModel.findOne({
         $or: [
-          {_id: id},
-          {username: id},
-          {email: id},
-          {invite: id},
-          {key: id},
-          {'discord.id': id.replace('<@!', '').replace('>', '')},
+          { _id: id },
+          { username: id },
+          { email: id },
+          { invite: id },
+          { key: id },
+          { 'discord.id': id.replace('<@!', '').replace('>', '') },
         ],
       });
       if (!user)
@@ -334,18 +332,18 @@ router.post(
   '/setuid',
   ValidationMiddleware(SetUIDSchema),
   async (req: Request, res: Response) => {
-    const {id, newuid} = req.body;
+    const { id, newuid } = req.body;
 
     try {
       // this next line is lol, just lol.
       const user = await UserModel.findOne({
         $or: [
-          {_id: id},
-          {username: id},
-          {email: id},
-          {invite: id},
-          {key: id},
-          {'discord.id': id.replace('<@!', '').replace('>', '')},
+          { _id: id },
+          { username: id },
+          { email: id },
+          { invite: id },
+          { key: id },
+          { 'discord.id': id.replace('<@!', '').replace('>', '') },
         ],
       });
       if (!user)
@@ -381,11 +379,11 @@ router.post(
   '/invitewave',
   ValidationMiddleware(InviteWaveSchema),
   async (req: Request, res: Response) => {
-    const {amount} = req.body;
+    const { amount } = req.body;
     try {
       await UserModel.updateMany(
-        {username: {$ne: null}},
-        {$inc: {invites: +amount}}
+        { username: { $ne: null } },
+        { $inc: { invites: +amount } }
       );
       return res.status(200).json({
         success: true,
@@ -400,7 +398,7 @@ router.post(
   }
 );
 router.post('/setmotd', async (req: Request, res: Response) => {
-  const {motd} = req.body;
+  const { motd } = req.body;
   try {
     setMOTD(motd);
     return res.status(200).json({
@@ -418,17 +416,17 @@ router.post(
   '/wipeuser',
   AdminMiddleware,
   async (req: Request, res: Response) => {
-    const {id} = req.body;
+    const { id } = req.body;
 
     try {
       const user = await UserModel.findOne({
         $or: [
-          {_id: id},
-          {username: id},
-          {email: id},
-          {invite: id},
-          {key: id},
-          {'discord.id': id.replace('<@!', '').replace('>', '')},
+          { _id: id },
+          { username: id },
+          { email: id },
+          { invite: id },
+          { key: id },
+          { 'discord.id': id.replace('<@!', '').replace('>', '') },
         ],
       });
       const count = await wipeFiles(user);
@@ -442,8 +440,8 @@ router.post(
       await InviteModel.deleteMany({
         'createdBy.uuid': user._id,
       });
-      await RefreshTokenModel.deleteMany({user: user._id});
-      await UserModel.deleteOne({_id: user._id});
+      await RefreshTokenModel.deleteMany({ user: user._id });
+      await UserModel.deleteOne({ _id: user._id });
       res.status(200).json({
         success: true,
         message: `wiped ${id} successfully`,
@@ -461,17 +459,17 @@ router.post(
   '/wipefiles',
   AdminMiddleware,
   async (req: Request, res: Response) => {
-    const {id} = req.body;
+    const { id } = req.body;
 
     try {
       const user = await UserModel.findOne({
         $or: [
-          {_id: id},
-          {username: id},
-          {email: id},
-          {invite: id},
-          {key: id},
-          {'discord.id': id.replace('<@!', '').replace('>', '')},
+          { _id: id },
+          { username: id },
+          { email: id },
+          { invite: id },
+          { key: id },
+          { 'discord.id': id.replace('<@!', '').replace('>', '') },
         ],
       });
       const count = await wipeFiles(user);
@@ -485,7 +483,7 @@ router.post(
       await InviteModel.deleteMany({
         'createdBy.uuid': user._id,
       });
-      await RefreshTokenModel.deleteMany({user: user._id});
+      await RefreshTokenModel.deleteMany({ user: user._id });
       res.status(200).json({
         success: true,
         message: `wiped ${id} successfully`,
@@ -501,17 +499,17 @@ router.post(
 );
 
 router.get('/users/:id', async (req: Request, res: Response) => {
-  const {id} = req.params;
+  const { id } = req.params;
 
   try {
     const user = await UserModel.find({
       $or: [
-        {_id: id},
-        {username: id},
-        {invite: id},
-        {key: id},
-        {'discord.id': id.replace('<@!', '').replace('>', '')},
-        {uid: parseInt(id) || null},
+        { _id: id },
+        { username: id },
+        { invite: id },
+        { key: id },
+        { 'discord.id': id.replace('<@!', '').replace('>', '') },
+        { uid: parseInt(id) || null },
       ],
     });
 
@@ -536,17 +534,17 @@ router.post(
   '/enable_user',
   AdminMiddleware,
   async (req: Request, res: Response) => {
-    const {id} = req.params;
+    const { id } = req.params;
 
     try {
       const user = await UserModel.findOne({
         $or: [
-          {_id: id},
-          {username: id},
-          {email: id},
-          {invite: id},
-          {key: id},
-          {'discord.id': id.replace('<@!', '').replace('>', '')},
+          { _id: id },
+          { username: id },
+          { email: id },
+          { invite: id },
+          { key: id },
+          { 'discord.id': id.replace('<@!', '').replace('>', '') },
         ],
       });
 
@@ -557,7 +555,7 @@ router.post(
         });
 
       await UserModel.findOneAndUpdate(
-        {_id: user._id},
+        { _id: user._id },
         {
           disabled: false,
         }
@@ -577,7 +575,7 @@ router.post(
 );
 
 router.post('/roles', AdminMiddleware, async (req: Request, res: Response) => {
-  const {id} = req.params;
+  const { id } = req.params;
 
   try {
     const user = await UserModel.findOne({

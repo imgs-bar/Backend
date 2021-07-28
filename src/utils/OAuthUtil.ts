@@ -1,8 +1,8 @@
-import Axios, {Method} from 'axios';
-import {AuthorizationInterface} from './interfaces/AuthorizationInterface';
-import {DiscordUserInterface} from './interfaces/DiscordUserInterface';
-import {stringify} from 'querystring';
-import {User} from '../models/UserModel';
+import Axios, { Method } from 'axios';
+import { AuthorizationInterface } from './interfaces/AuthorizationInterface';
+import { DiscordUserInterface } from './interfaces/DiscordUserInterface';
+import { stringify } from 'querystring';
+import { User } from '../models/UserModel';
 
 /**
  * Send a request to the discord api.
@@ -20,7 +20,7 @@ export async function request(
 ) {
   try {
     const baseUrl = 'https://discord.com/api';
-    const {data} = await Axios({
+    const { data } = await Axios({
       url: `${baseUrl}${endpoint}`,
       method,
       headers: headers ? headers : null,
@@ -248,4 +248,4 @@ async function addRoles(user: User) {
     console.log(e.stack);
   }
 }
-export {addPremium, addRoles, removePremium};
+export { addPremium, addRoles, removePremium };

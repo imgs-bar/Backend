@@ -11,6 +11,8 @@ import { hash, verify } from 'argon2';
 import RefreshTokenModel from '../../models/RefreshTokenModel';
 import { sendPasswordReset } from '../../utils/MailUtil';
 
+const rateLimit = require('express-rate-limit');
+
 const router = Router();
 
 
@@ -23,6 +25,12 @@ router.post(
         success: false,
         error: 'you are already logged in',
       });
+
+    const PasswordResetConfirmationSchema = rateLimit({
+      windowMs: 10 * 1000,
+      max: 1,
+      headers: false,
+    });
 
     const { email } = req.body;
     let user: PasswordReset | User = await PasswordResetModel.findOne({ email });
