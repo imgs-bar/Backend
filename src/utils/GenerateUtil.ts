@@ -1,4 +1,5 @@
-import {randomBytes} from 'crypto';
+import { randomBytes } from 'crypto';
+import emojis from './emojis.json';
 
 /**
  * Generate a string.
@@ -35,4 +36,13 @@ function generateInvisibleId(length: number): string {
   return url + '\u200B';
 }
 
-export {generateString, generateInvite, generateInvisibleId};
+function generateRandomEmojis(length: number) {
+  let randomEmojis = '';
+  for (let i = 0; i < length; i++) {
+    randomEmojis =
+      randomEmojis + emojis[Math.floor(Math.random() * emojis.length)];
+  }
+  return randomEmojis;
+}
+
+export {generateString, generateInvite, generateInvisibleId, generateRandomEmojis};
