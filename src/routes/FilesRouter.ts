@@ -2,13 +2,14 @@ import {Request, Response, Router} from 'express';
 import {upload} from '../utils/MulterUtil';
 import {s3, wipeFiles} from '../utils/S3Util';
 import {formatEmbed, formatFakeUrl, formatFilesize} from '../utils/FormatUtil';
-import {generateInvisibleId, generateString} from '../utils/GenerateUtil';
+import {generateInvisibleId, generateString, generateRandomEmojis} from '../utils/GenerateUtil';
 import {DocumentType} from '@typegoose/typegoose';
 import {PassThrough} from 'stream';
 import UploadMiddleware from '../middlewares/UploadMiddleware';
 import FileModel, {File} from '../models/FileModel';
 import UserModel, {User} from '../models/UserModel';
 import InvisibleUrlModel from '../models/InvisibleUrlModel';
+import EmojiUrlModel from '../models/EmojiUrlModel';
 import ValidationMiddleware from '../middlewares/ValidationMiddleware';
 import DeletionSchema from '../schemas/DeletionSchema';
 import ConfigSchema from '../schemas/ConfigSchema';
@@ -62,6 +63,7 @@ router.post(
       embed,
       showLink,
       invisibleUrl,
+      emojiUrl,
       fakeUrl,
       longUrl,
     } = user.settings;
@@ -144,6 +146,23 @@ router.post(
       });
 
       imageUrl = `https://${baseUrl}/${invisibleUrlId}`;
+    }
+    if (
+      req.headers.emojiurl
+        ? req.headers.emojiurl === 'true'
+        : emojiUrl
+    ) {
+      const emojiUrlId = emojiUrl
+        ? generateRandomEmojis(25)
+        : generateRandomEmojis(10);
+
+      await EmojiUrlModel.create({
+        _id: emojiUrlId,
+        filename: file.filename,
+        uploader: user._id,
+      });
+
+      imageUrl = `https://${baseUrl}/${emojiUrlId}`;
     }
     if (fakeUrl && fakeUrl.enabled) {
       imageUrl =
@@ -281,6 +300,10 @@ router.post('/wipe', AuthMiddleware, async (req: Request, res: Response) => {
     });
 
     await InvisibleUrlModel.deleteMany({
+      uploader: user._id,
+    });
+
+    await EmojiUrlModel.deleteMany({
       uploader: user._id,
     });
 
