@@ -67,16 +67,6 @@ try {
     }
   }
 
-  Sentry.init({
-    dsn:
-      'https://26c89f0e064f4e3abf1385baf32fdf61@o684538.ingest.sentry.io/5780233',
-    integrations: [
-      // enable HTTP calls tracing
-      new Sentry.Integrations.Http({tracing: true}),
-      // enable Express.js middleware tracing
-      new Tracing.Integrations.Express({app}),
-    ],
-  });
 
   if (errors.length > 0)
     throw new Error(
@@ -97,8 +87,6 @@ try {
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     })
   );
-  app.use(Sentry.Handlers.requestHandler());
-  app.use(Sentry.Handlers.tracingHandler());
 
   app.set('trust proxy', 1);
   app.use(helmet.originAgentCluster());
@@ -116,7 +104,6 @@ try {
   app.use('/shortener', ShortenerRouter);
   app.use('/bot', AdminRouter);
   app.use('/stats', StatsRouter);
-  app.use(Sentry.Handlers.errorHandler());
 
   app.use(
     (
